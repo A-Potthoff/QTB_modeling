@@ -1,0 +1,109 @@
+from modelbase.ode import Model
+
+from .rate_laws import mass_action_22_rev
+from .rate_laws import moiety_3
+from .rate_laws import vPS1
+
+# as written in matuszynska.py:
+# m.add_algebraic_module(
+#     module_name="ps1states",
+#     function=ps1states,
+#     compounds=["PC", "PCred", "Fd", "Fdred", "LHC", "ps2cs"],
+#     derived_compounds=["A1"],
+#     parameters=["PSItot", "kFdred", "Keq_FAFd", "Keq_PCP700", "kPCox", "pfd"],
+# )
+
+# commented out in matuszynska.py:
+    # m.add_reaction( # ! attention
+#     rate_name="vPS1",
+#     function=vPS1,
+#     stoichiometry={"Fd": -1, "PC": 1},
+#     modifiers=["A1", "ps2cs"],
+#     dynamic_variables=["A1", "ps2cs"],  # doesn't depend on Fd
+#     parameters=["pfd"],
+# )
+
+# def vFd_red(Fd, Fdred, A1, A2, kFdred, Keq_FAFd): 
+#     """rate of the redcution of Fd by the activity of PSI
+#     A1 -> A2 (old model) or
+#     A1 -> A3 / A2 -> A0 (new model)
+#     used to be equall to the rate of PSI but now
+#     alternative electron pathway from Fd allows for the production of ROS
+#     hence this rate has to be separate
+#     """
+#     return kFdred * Fd * A1 - kFdred / Keq_FAFd * Fdred * A2
+
+
+    # m.add_reaction(
+    #     rate_name="vFdred",
+    #     function=vFd_red,
+    #     stoichiometry={"Fd": -1},
+    #     modifiers=["Fdred", "A1", "A2"],
+    #     parameters=["kFdred", "Keq_FAFd"],
+    # )
+    
+def add_PSI(m) -> Model:
+    m.add_compounds(["P700FA", "P700+FA-", "P700FA-"])
+
+    m.add_algebraic_module(
+        module_name="P700+FA_alm",
+        function=moiety_3,
+        compounds=["P700FA-", "P700FA", "P700+FA-"],
+        derived_compounds=["P700+FA"],
+        parameters=["PSItot"]
+    )
+
+    m.update_reaction(
+        rate_name="vPS1",
+        function=vPS1,
+        stoichiometry={"P700FA": -1, "P700+FA-": 1},
+        modifiers=["P700FA", "ps2cs"],                      # !
+        dynamic_variables=["P700FA", "ps2cs"],              # !
+        parameters=["pfd"],
+    )
+
+    m.add_reaction(
+        rate_name="v2_to_P700FA-",
+        function=mass_action_22_rev,
+        stoichiometry={"P700+FA-": -1, "P700FA-": 1, "PC":1}, # "PCred": -1 not included because computed by moiety
+        modifiers=["PCred"], # has to be included here then!
+        parameters=["kPCox", "Keq_PCP700"],
+        reversible=True
+    )
+    m.add_reaction(
+        rate_name="v3_to_P700FA",
+        function=mass_action_22_rev,
+        stoichiometry={"P700FA-": -1, "Fd": -1, "P700FA": 1},
+        modifiers=["Fdred"],
+        parameters=["kFdred", "Keq_FAFd"],
+        reversible=True
+    )
+    m.add_reaction(
+        rate_name = "v4_to_P700+FA",
+        function = mass_action_22_rev,
+        stoichiometry = {"P700+FA-": -1, "Fd": -1},
+        modifiers = ["Fdred", "P700+FA"],
+        parameters = ["kFdred", "Keq_FAFd"],
+        reversible=True
+    )
+    m.add_reaction(
+        rate_name = "v5_to_P700FA",
+        function = mass_action_22_rev,
+        stoichiometry = {"P700FA": 1, "PC": 1},
+        modifiers = ["PCred", "P700+FA"],
+        parameters=["kPCox", "Keq_PCP700"],
+        reversible=True
+    )
+
+    return m
+
+
+
+
+# ? how do I deal with A3 not being computed explicitly? Do I remove it from the stoichiometry?
+# ? can I reuse kPCox and kFdred?
+# ? can I reuse Keq_PCP700 and Keq_FAFd?
+# ? How do I define vPS1?
+# ? what is ps2cs?
+
+
