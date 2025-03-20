@@ -4,6 +4,9 @@ import numpy as np
 def moiety_1(concentration, total):
     return total - concentration
 
+def moiety_3(c1, c2, c3, total): # first the compounds are passed and then the parameters
+    return total - c1 - c2 - c3
+
 
 def mass_action_1s(s1, kf):
     return kf * s1
@@ -12,6 +15,10 @@ def mass_action_1s(s1, kf):
 def mass_action_2s(s1, s2, kf):
     return kf * s1 * s2
 
+def mass_action_22_rev(s1, s2, p1, p2, kf, keq): # reverse reaction
+    forward = kf * s1 * s2
+    reverse = kf/keq * p1 * p2
+    return forward - reverse
 
 def proportional(base, factor):
     return base * factor

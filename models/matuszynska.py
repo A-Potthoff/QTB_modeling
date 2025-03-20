@@ -26,8 +26,7 @@ def Pimoiety(
     G1P,
     SBP,
     S7P,
-    E4P,#
-    
+    E4P,
     X5P,
     R5P,
     RUBP,
@@ -225,6 +224,7 @@ def vLhcdeprotonation(Psbsp, kDeprotonation):
 ### Photosystem I
 #(PSI does not perform significant NPQ)
 
+# old form (updated in "new_PSI.py")
 def ps1states(PC, PCred, Fd, Fdred, LHC, ps2cs, PSItot, kFdred, Keq_FAFd, Keq_PCP700, kPCox, pfd):
     """
     QSSA calculates open state of PSI
@@ -239,6 +239,9 @@ def ps1states(PC, PCred, Fd, Fdred, LHC, ps2cs, PSItot, kFdred, Keq_FAFd, Keq_PC
         + (1 + Fdred / (Keq_FAFd * Fd)) * (PC / (Keq_PCP700 * PCred) + L / (kPCox * PCred))
     )
     return A1
+
+
+
 
 
 ### oxygen helper functions
@@ -313,7 +316,7 @@ def vFNR(Fd, Fdred, NADPH, NADP, KM_FNR_F, KM_FNR_N, EFNR, kcatFNR, Keq_FNR, con
     fdred = Fdred / KM_FNR_F
     fdox = Fd / KM_FNR_F
     nadph = (NADPH / convf) / KM_FNR_N  # NADPH requires conversion to mmol/mol of chlorophyll
-    nadp = (NADP / convf) / KM_FNR_N  # NADP requires conversion to mmol/mol of chlorophyll
+    nadp = (NADP / convf) / KM_FNR_N    # NADP  requires conversion to mmol/mol of chlorophyll
     return (
         EFNR
         * kcatFNR
@@ -606,7 +609,7 @@ p = {
     "Kast1": 0.1,
     "Kast2": 0.02,
     "Kast3": 0.02,
-    "k": 10.0 ** 8.0 * 8, # large k used for rapid equilibration approximation
+    "k": 10.0 ** 8.0 * 8,  # large k used for rapid equilibration approximation
     # CBB speedup factor
     "Km_fcbb": 150.0,
     "Vmax_fcbb": 6.0,

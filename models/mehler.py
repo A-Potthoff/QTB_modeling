@@ -9,57 +9,57 @@ from .rate_laws import vPS1
 # This serves as an alternative electron sink to the PSI
 
 
-def ps1analytic_mehler(PC, PCred, Fd, Fdred, LHC, ps2cs, PSItot, kFdred, KeqF, KeqC, kPCox, pfd, k0, O2):
-    """
-    QSSA calculates open state of PSI
-    depends on reduction states of plastocyanin and ferredoxin
-    C = [PC], F = [Fd] (ox. forms)
-    """
-    kLI = (1 - ps2cs) * pfd
+# def ps1analytic_mehler(PC, PCred, Fd, Fdred, LHC, ps2cs, PSItot, kFdred, KeqF, KeqC, kPCox, pfd, k0, O2):
+#     """
+#     QSSA calculates open state of PSI
+#     depends on reduction states of plastocyanin and ferredoxin
+#     C = [PC], F = [Fd] (ox. forms)
+#     """
+#     kLI = (1 - ps2cs) * pfd
 
-    y0 = (
-        KeqC
-        * KeqF
-        * PCred
-        * PSItot
-        * kPCox
-        * (Fd * kFdred + O2 * k0)
-        / (
-            Fd * KeqC * KeqF * PCred * kFdred * kPCox
-            + Fd * KeqF * kFdred * (KeqC * kLI + PC * kPCox)
-            + Fdred * kFdred * (KeqC * kLI + PC * kPCox)
-            + KeqC * KeqF * O2 * PCred * k0 * kPCox
-            + KeqC * KeqF * PCred * kLI * kPCox
-            + KeqF * O2 * k0 * (KeqC * kLI + PC * kPCox)
-        )
-    )
+#     y0 = (
+#         KeqC
+#         * KeqF
+#         * PCred
+#         * PSItot
+#         * kPCox
+#         * (Fd * kFdred + O2 * k0)
+#         / (
+#             Fd * KeqC * KeqF * PCred * kFdred * kPCox
+#             + Fd * KeqF * kFdred * (KeqC * kLI + PC * kPCox)
+#             + Fdred * kFdred * (KeqC * kLI + PC * kPCox)
+#             + KeqC * KeqF * O2 * PCred * k0 * kPCox
+#             + KeqC * KeqF * PCred * kLI * kPCox
+#             + KeqF * O2 * k0 * (KeqC * kLI + PC * kPCox)
+#         )
+#     )
 
-    y1 = (
-        PSItot
-        * (Fdred * kFdred * (KeqC * kLI + PC * kPCox) + KeqC * KeqF * PCred * kLI * kPCox)
-        / (
-            Fd * KeqC * KeqF * PCred * kFdred * kPCox
-            + Fd * KeqF * kFdred * (KeqC * kLI + PC * kPCox)
-            + Fdred * kFdred * (KeqC * kLI + PC * kPCox)
-            + KeqC * KeqF * O2 * PCred * k0 * kPCox
-            + KeqC * KeqF * PCred * kLI * kPCox
-            + KeqF * O2 * k0 * (KeqC * kLI + PC * kPCox)
-        )
-    )
-    y2 = PSItot - y0 - y1
+#     y1 = (
+#         PSItot
+#         * (Fdred * kFdred * (KeqC * kLI + PC * kPCox) + KeqC * KeqF * PCred * kLI * kPCox)
+#         / (
+#             Fd * KeqC * KeqF * PCred * kFdred * kPCox
+#             + Fd * KeqF * kFdred * (KeqC * kLI + PC * kPCox)
+#             + Fdred * kFdred * (KeqC * kLI + PC * kPCox)
+#             + KeqC * KeqF * O2 * PCred * k0 * kPCox
+#             + KeqC * KeqF * PCred * kLI * kPCox
+#             + KeqF * O2 * k0 * (KeqC * kLI + PC * kPCox)
+#         )
+#     )
+#     y2 = PSItot - y0 - y1
 
-    return y0, y1, y2
+#     return y0, y1, y2
 
 
-def vFd_red(Fd, Fdred, A1, A2, kFdred, Keq_FAFd): 
-    """rate of the redcution of Fd by the activity of PSI
-    A1 -> A2 (old model) or
-    A1 -> A3 / A2 -> A0 (new model)
-    used to be equall to the rate of PSI but now
-    alternative electron pathway from Fd allows for the production of ROS
-    hence this rate has to be separate
-    """
-    return kFdred * Fd * A1 - kFdred / Keq_FAFd * Fdred * A2
+# def vFd_red(Fd, Fdred, A1, A2, kFdred, Keq_FAFd): 
+#     """rate of the redcution of Fd by the activity of PSI
+#     A1 -> A2 (old model) or
+#     A1 -> A3 / A2 -> A0 (new model)
+#     used to be equall to the rate of PSI but now
+#     alternative electron pathway from Fd allows for the production of ROS
+#     hence this rate has to be separate
+#     """
+#     return kFdred * Fd * A1 - kFdred / Keq_FAFd * Fdred * A2
 
 
 def vAscorbate(A, H, kf1, kr1, kf2, kr2, kf3, kf4, kr4, kf5, XT):
@@ -191,55 +191,55 @@ def add_mehler(m) -> Model:
         parameters=["Glutathion_total"],
     )
 
-    m.update_algebraic_module(
-        module_name="ps1states",
-        function=ps1analytic_mehler,
-        compounds=["PC", "PCred", "Fd", "Fdred", "LHC", "ps2cs"],
-        derived_compounds=["A0", "A1", "A2"],
-        parameters=[
-            "PSItot",
-            "kFdred",
-            "Keq_FAFd",
-            "Keq_PCP700",
-            "kPCox",
-            "pfd",
-            "kMehler",
-            "O2ext",
-        ],
-        args=[
-            "PC",
-            "PCred",
-            "Fd",
-            "Fdred",
-            "LHC",
-            "ps2cs",
-            "PSItot",
-            "kFdred",
-            "Keq_FAFd",
-            "Keq_PCP700",
-            "kPCox",
-            "pfd",
-            "kMehler",
-            "O2ext",
-        ],
-    )
+    # m.update_algebraic_module(
+    #     module_name="ps1states",
+    #     function=ps1analytic_mehler,
+    #     compounds=["PC", "PCred", "Fd", "Fdred", "LHC", "ps2cs"],
+    #     derived_compounds=["A0", "A1", "A2"],
+    #     parameters=[
+    #         "PSItot",
+    #         "kFdred",
+    #         "Keq_FAFd",
+    #         "Keq_PCP700",
+    #         "kPCox",
+    #         "pfd",
+    #         "kMehler",
+    #         "O2ext",
+    #     ],
+    #     args=[
+    #         "PC",
+    #         "PCred",
+    #         "Fd",
+    #         "Fdred",
+    #         "LHC",
+    #         "ps2cs",
+    #         "PSItot",
+    #         "kFdred",
+    #         "Keq_FAFd",
+    #         "Keq_PCP700",
+    #         "kPCox",
+    #         "pfd",
+    #         "kMehler",
+    #         "O2ext",
+    #     ],
+    # )
 
-    m.update_reaction(
-        rate_name="vPS1",
-        function=vPS1,
-        stoichiometry={"PC": 1},
-        modifiers=["A0", "ps2cs"],
-        dynamic_variables=["A0", "ps2cs"],
-        parameters=["pfd"],
-    )
+    # m.update_reaction(
+    #     rate_name="vPS1",
+    #     function=vPS1,
+    #     stoichiometry={"PC": 1},
+    #     modifiers=["A0", "ps2cs"],
+    #     dynamic_variables=["A0", "ps2cs"],
+    #     parameters=["pfd"],
+    # )
 
-    m.add_reaction(
-        rate_name="vFdred",
-        function=vFd_red,
-        stoichiometry={"Fd": -1},
-        modifiers=["Fdred", "A1", "A2"],
-        parameters=["kFdred", "Keq_FAFd"],
-    )
+    # m.add_reaction(
+    #     rate_name="vFdred",
+    #     function=vFd_red,
+    #     stoichiometry={"Fd": -1},
+    #     modifiers=["Fdred", "A1", "A2"],
+    #     parameters=["kFdred", "Keq_FAFd"],
+    # )
 
     m.add_reaction(
         rate_name="vAscorbate",
