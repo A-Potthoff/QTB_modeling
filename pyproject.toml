@@ -1,0 +1,45 @@
+[tool.black]
+line-length = 90
+target-version = ['py310']
+
+[tool.isort]
+profile = "black"
+no_sections = true
+honor_noqa = true
+
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
+plugins = ["numpy.typing.mypy_plugin"]
+
+
+
+[tool.pylint.messages_control]
+max-line-length = 100
+disable = [
+  "no-self-use",
+  "too-many-instance-attributes",
+  "too-many-arguments",
+  "too-many-locals",
+  "too-many-branches",
+  "too-many-public-methods",
+  "too-many-statements",
+  "too-many-ancestors",
+  "too-many-lines",
+  "super-init-not-called",
+  "non-parent-init-called",
+  "arguments-differ",
+  "invalid-name",
+  "import-outside-toplevel",
+  "unspecified-encoding",
+  "protected-access",
+  "wrong-import-order",
+  "inconsistent-return-statements",
+  "no-member",
+  "unused-argument",
+]
+

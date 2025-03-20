@@ -1,0 +1,13 @@
+bandit
+black[jupyter]
+flake8
+isort
+matplotlib
+mypy
+modelbase>=1.31.0
+notebook
+numpy
+pandas
+pre-commit
+pip-tools
+jupyter_contrib_nbextensions

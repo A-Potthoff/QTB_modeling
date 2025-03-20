@@ -1,0 +1,152 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\begin{document}
+
+\title{Mathematical Model of Photosynthesis}
+\author{}
+\date{}
+\maketitle
+
+\section{Stoichiometry}
+The system of equations comprises a set of 24 coupled ordinary differential equations:
+
+\subsection{dynamics of the PETC}
+
+\begin{align}
+    \frac{d[\text{PQ}]}{dt} &= -v_{\text{PSII}} + v_{\text{b6f}} - v_{\text{FQR}} + v_{\text{PTOX}} - v_{\text{NDH}}, \\
+    \frac{d[\text{PC}]}{dt} &= -2v_{\text{b6f}} + v_{\text{PSI}}, \\
+    \frac{d[\text{Fd}]}{dt} &= -v_{\text{PSI}} + 2v_{\text{FNR}} + 2v_{\text{FQR}}, \\
+    \frac{d[\text{ATP}]}{dt} &= v_{\text{ATPsynthase}} \cdot p_{\text{convf}} - v_{\text{vPGA}_{\text{kinase}}} - v_{13} - v_{\text{Starch}}, \\
+    \frac{d[\text{NADPH}]}{dt} &= v_{\text{FNR}} \cdot p_{\text{convf}} - v_{\text{vBPGA}_{\text{dehydrogenase}}}, \\
+    \frac{d[\text{H}]}{dt} &= \left( 2v_{\text{PSII}} + 4v_{\text{b6f}} - \frac{14}{3} v_{\text{ATPsynthase}} - v_{\text{leak}} \right) \cdot \frac{1}{b_{\text{H}}}, \\
+    \frac{d[\text{LHC}]}{dt} &= v_{\text{Stt7}} - v_{\text{Pph1}}, \\
+    \frac{d[\text{PsbS}]}{dt} &= -v_{\text{LHCprotonation}} + v_{\text{LHCdeprotonation}}, \\
+    \frac{d[\text{Vx}]}{dt} &= -v_{\text{Deepox}} + v_{\text{Epox}}.
+\end{align}
+
+
+The next set of equations describes the CBB cycle intermediates:
+
+\begin{align}
+    \frac{d[\text{PGA}]}{dt} &= 2v_{\text{RuBisCO}} - v_{\text{PGA}_{\text{kinase}}} - v_{\text{pga}}, \\
+    \frac{d[\text{BPGA}]}{dt} &= v_{\text{PGA}_{\text{kinase}}} - v_{\text{BPGA}_{\text{dehydrogenase}}}, \\
+    \frac{d[\text{GAP}]}{dt} &= v_{\text{BPGA}_{\text{dehydrogenase}}} - v_{\text{TPI}} - v_{\text{Aldolase}} - v_{\text{F6P}_{\text{Transketolase}}} - v_{10} - v_{\text{gap}}, \\
+    \frac{d[\text{DHAP}]}{dt} &= v_{\text{TPI}} - v_{\text{Aldolase}} - v_{8} - v_{\text{dhap}}, \\
+    \frac{d[\text{FBP}]}{dt} &= v_{\text{Aldolase}} - v_{\text{FBPase}}, \\
+    \frac{d[\text{F6P}]}{dt} &= v_{\text{FBPase}} - v_{\text{F6P}_{\text{Transketolase}}} - v_{14}, \\
+    \frac{d[\text{G6P}]}{dt} &= v_{14} - v_{\text{Phosphoglucomutase}}, \\
+    \frac{d[\text{G1P}]}{dt} &= v_{\text{Phosphoglucomutase}} - v_{\text{Starch}}, \\
+    \frac{d[\text{SBP}]}{dt} &= v_{8} - v_{9}, \\
+    \frac{d[\text{S7P}]}{dt} &= v_{9} - v_{10}, \\
+    \frac{d[\text{E4P}]}{dt} &= v_{\text{F6P}_{\text{Transketolase}}} - v_{8}, \\
+    \frac{d[\text{X5P}]}{dt} &= v_{\text{F6P}_{\text{Transketolase}}} + v_{10} - v_{12}, \\
+    \frac{d[\text{R5P}]}{dt} &= v_{10} - v_{11}, \\
+    \frac{d[\text{RUBP}]}{dt} &= v_{13} - v_{\text{RuBisCO}}, \\
+    \frac{d[\text{RU5P}]}{dt} &= v_{11} + v_{12} + v_{\text{oxPPP}} - v_{13}.
+\end{align}
+
+
+\section{Algebraic Expressions}
+Using modelbase functionality, we define dependent variables:
+
+\begin{align}
+    [\text{PQH}_2] &= \text{PQ}_{\text{tot}} - [\text{PQ}], \\
+    [\text{PC}^-] &= \text{PC}_{\text{tot}} - [\text{PC}], \\
+    [\text{Fd}^-] &= \text{Fd}_{\text{tot}} - [\text{Fd}], \\
+    [\text{ADP}] &= \text{AP}_{\text{tot}} - [\text{ATP}], \\
+    [\text{NADP}^+] &= \text{NADP}_{\text{tot}} - [\text{NADPH}], \\
+    [\text{Pi}] &= \text{P}_{\text{tot}} - ([\text{PGA}] + 2 \cdot [\text{BPGA}] + [\text{GAP}] + [\text{DHAP}] + 2[\text{FBP}] + [\text{F6P}]  + [\text{G6P}] +  \nonumber \\
+    &\quad [\text{G1P}] + 2[\text{SBP}] + [\text{S7P}] + [\text{E4P}] + [\text{X5P}] + [\text{R5P}] + 2[\text{RUBP}] + [\text{RU5P}] + [\text{ATP}]) \\
+    N &= 1 + \left( 1 + \frac{K_{\text{Pext}}}{[\text{P}_{\text{ext}}]} \right) \cdot \left( \frac{[\text{Pi}]}{K_{\text{pi}}} + \frac{[\text{PGA}]}{K_{\text{pga}}} + \frac{[\text{GAP}]}{K_{\text{gap}}} + \frac{[\text{DHAP}]}{K_{\text{dhap}}} \right).
+\end{align}
+
+\section{Quencher Activity}
+The overall quencher activity is given by:
+
+\begin{equation}
+    \begin{aligned}
+        Q &= \gamma_0 \cdot \left(1 - \frac{[\text{Zx}]}{[\text{Zx}] + K_{\text{ZSat}}} \right) \cdot [\text{PsbS}] \\
+        &\quad + \gamma_1 \cdot \left(1 - \frac{[\text{Zx}]}{[\text{Zx}] + K_{\text{ZSat}}} \right) \cdot [\text{PsbS}^p] \\
+        &\quad + \gamma_2 \cdot \frac{[\text{Zx}]}{[\text{Zx}] + K_{\text{ZSat}}} \cdot [\text{PsbS}^p] \\
+        &\quad + \gamma_3 \cdot \frac{[\text{Zx}]}{[\text{Zx}] + K_{\text{ZSat}}} \cdot [\text{PsbS}].
+    \end{aligned}
+\end{equation}
+
+
+\section{Photosystem Dynamics}
+Quasi-steady-state approximations for photosystem II:
+
+\begin{equation}
+    \begin{aligned}
+        -\left( k_{\text{LII}} + \frac{k_{\text{PQred}}}{K_{\text{eq,QAPQ}}} \cdot [\text{PQH}_2] \right) B_0 + (k_H Q + k_F) B_1 + k_{\text{PQred}} [\text{PQ}] B_3 &= 0, \\
+        k_{\text{LII}} B_0 - (k_H Q + k_F + k_P) B_1 &= 0, \\
+        k_{\text{LII}} B_2 - (k_H Q + k_F) B_3 &= 0, \\
+        B_0 + B_1 + B_2 + B_3 &= \text{PSII}^{\text{tot}}, \\
+    \end{aligned}
+\end{equation}
+
+quasi-steady-state approximation for PSI I
+
+\begin{equation}
+    \begin{aligned}
+        % PSI approximation
+        -\left( k_{\text{LI}} + \frac{k_{\text{PCox}}}{K_{\text{eq,PCP700}}} \cdot [\text{C}] \right) Y_0 + k_{\text{PCox}} \cdot [\text{PC}^-] \cdot Y_2 &= 0, \\
+        k_{\text{LI}} Y_0 - k_{\text{Fdred}} \cdot [\text{F}] \cdot Y_1 + \frac{k_{\text{Fdred}}}{K_{\text{eq,P700Fd}}} \cdot [\text{Fd}^-] \cdot Y_2 &= 0, \\
+        Y_0 + Y_1 + Y_2 &= \text{PSI}^{\text{tot}}.
+    \end{aligned}
+\end{equation}
+
+\section{Reactions of the PETC}
+
+\begin{align}
+    v_{\text{PSII}} &= k_2 \cdot 0.5 \cdot B_1, \\
+    v_{\text{PSI}} &= k_{LI} \cdot Y_0, \\
+    v_{b6f} &= \max\left(k_{b6f} \cdot \frac{[\text{PQ}] \cdot [\text{PC}^-]^2 - [\text{PQH}_2] \cdot [\text{PC}]^2}{K_{eq,b6f(H)}}, v^{\min}_{\text{b6f}}\right), \\
+    v_{\text{ATPsynthase}} &= k_{\text{ATP synthase}} \cdot \frac{[\text{ADP}] - [\text{ATP}]}{K_{eq, \text{ATPsynthase}}(H)}, \\
+    v_{\text{FNR}} &= V_{\max \text{FNR}} \cdot \frac{f^{-2} \cdot n^+ - (f^2 \cdot n) / K_{eq,\text{FNR}}}{(1 + f^- + f^{-2}) (1 + n^+) + (1 + f + f^2) (1 + n^+) - 1}, \\
+    v_{\text{FQR}} &= k_{\text{FQR}} \cdot [\text{F}]^2 \cdot [\text{PQH}_2], \\
+    v_{\text{NDH}} &= k_{\text{NDH}} \cdot [\text{PQH}_2], \\
+    v_{\text{Leak}} &= k_{\text{leak}} \cdot ([\text{H}] - [\text{H}_{\text{stroma}}]), \\
+    v_{\text{PTOX}} &= k_{\text{PTOX}} \cdot O^{\text{ext}}_2 \cdot [\text{PQ}] \\
+    v_{\text{Stt7}} &= k_{\text{Stt7}} \cdot \frac{1}{1 + (\frac{[\text{PQH}_2]/PQ^{tot}}{K_{M,ST}})^{n_{ST}}} \cdot (1 - [\text{LHC}]), \\
+    v_{\text{Pph1}} &= k_{\text{Pph1}} \cdot [\text{LHC}], \\
+    v_{\text{Deepox}} &= k_{\text{DeepoxV}} \cdot \frac{H^{nH_{X}}}{H^{nH_{X}} \cdot pH_{\text{inv}} (K_{phSat})^{nH_{X}}} \cdot [\text{Vx}], \\
+    v_{\text{Epox}} &= -k_{\text{EpoxZ}} \cdot [\text{Zx}], \\
+    v_{\text{LHCprotonation}} &= k_{\text{ProtonationL}} \cdot \frac{H^{nH_{L}}}{H^{nH_{L}} + pH_{\text{inv}}(K_{phSatLHC)})^{nH_L}} \cdot [\text{PsbS}], \\
+    v_{\text{LHCdeprotonation}} &= -k_{\text{Deprotonation}} \cdot [\text{PsbS}_p].
+\end{align}
+
+\section{Reactions of the CBB Cycle}
+
+\begin{align}
+    v_{\text{RuBisCO}} &= \frac{V_1 [\text{RUBP}]}{[\text{RUBP}] + K_{m1} \left(1 + \frac{[\text{PGA}]}{K_{i11}} + \frac{[\text{FBP}]}{K_{i12}} + \frac{[\text{SBP}]}{K_{i13}} + \frac{[\text{Pi}]}{K_{i14}} + \frac{[\text{NADPH}]}{K_{i15}} \right)}, \\
+    v_{\text{FBPase}} &= \frac{V_6 [\text{FBP}]}{[\text{FBP}] + K_{m6} \left(1 + \frac{[\text{F6P}]}{K_{i61}} + \frac{[\text{Pi}]}{K_{i62}} \right)}, \\
+    v_9 &= \frac{V_9 [\text{SBP}]}{[\text{SBP}] + K_{m9} \left(1 + \frac{[\text{Pi}]}{K_{i9}} \right)}, \\
+    v_{13} &= \frac{V_{13} [\text{RU5P}] [\text{ATP}]}{([\text{RU5P}] + K_{m131} (1 + \frac{[\text{PGA}]}{K_{i131}} + \frac{[\text{RUBP}]}{K_{i132}} + \frac{[\text{Pi}]}{K_{i133}})) ([\text{ATP}] (1 + \frac{[\text{ADP}]}{K_{i134}}) + K_{m132} (1 + \frac{[\text{ADP}]}{K_{i135}}))}\\
+    v_{\text{pga}} &= V_{\text{ex}} \cdot \frac{[\text{PGA}]}{N \cdot K_{\text{pga}}}, \\
+    v_{\text{gap}} &= V_{\text{ex}} \cdot \frac{[\text{GAP}]}{N \cdot K_{\text{gap}}}, \\
+    v_{\text{DHAP}} &= V_{\text{ex}} \cdot \frac{[\text{DHAP}]}{N \cdot K_{\text{dhap}}}, \\
+    v_{\text{Starch}} &= \frac{V_{\text{st}} \cdot [\text{G1P}] \cdot [\text{ATP}]}{([\text{G1P}] + K_{\text{mst1}}) \cdot \left( (1 + \frac{[\text{ADP}]}{K_{\text{ist}}}) \cdot ([\text{ATP}] + K_{\text{mst2}}) + \frac{K_{\text{mst2}} [\text{Pi}]}{K_{\text{ast1}} [\text{PGA}] + K_{\text{ast2}} [\text{F6P}] + K_{\text{ast3}} [\text{FBP}]} \right)}.
+\end{align}
+
+\section{Poolman Implementation}
+
+\begin{align}
+    v_{\text{PGA kinase}} &= k \left( [\text{ATP}] [\text{PGA}] - \frac{1}{q_2} [\text{ADP}] [\text{BPGA}] \right), \\
+    v_{\text{BPGA dehydrogenase}} &= k \left( [\text{NADPH}] [\text{BPGA}] [\text{H}_{\text{stroma}}] - \frac{1}{q_3} [\text{GAP}] [\text{NADP}] [\text{P}] \right), \\
+    v_{\text{TPI}} &= k \left( [\text{GAP}] - \frac{1}{q_4} [\text{DHAP}] \right), \\
+    v_{\text{Aldolase}} &= k \left( [\text{GAP}] [\text{DHAP}] - \frac{1}{q_5} [\text{FBP}] \right), \\
+    v_{\text{F6P Transketolase}} &= k \left( [\text{GAP}] [\text{F6P}] - \frac{1}{q_7} [\text{X5P}] [\text{E4P}] \right), \\
+    v_8 &= k \left( [\text{DHAP}] [\text{E4P}] - \frac{1}{q_8} [\text{SBP}] \right), \\
+    v_{10} &= k \left( [\text{GAP}] [\text{S7P}] - \frac{1}{q_{10}} [\text{X5P}] [\text{R5P}] \right), \\
+    v_{11} &= k \left( [\text{R5P}] - \frac{1}{q_{11}} [\text{RU5P}] \right), \\
+    v_{12} &= k \left( [\text{X5P}] - \frac{1}{q_{12}} [\text{RU5P}] \right) \\
+    v_{14} &= k\left([\text{F6P}]-\frac{1}{q_{14}} \cdot [\text{G6P}]\right) \\
+    v_{15} &= k\left([\text{G6P}]-\frac{1}{q_{15}} \cdot [\text{G1P}]\right) \\
+\end{align}
+
+
+\end{document}
