@@ -5,8 +5,8 @@ def moiety_1(concentration, total):
     return total - concentration
 
 def moiety_3(c1, c2, c3, total): # first the compounds are passed and then the parameters
-    return total - c1 - c2 - c3
-
+    c4 = total - c1 - c2 - c3
+    return c4
 
 def mass_action_1s(s1, kf):
     return kf * s1

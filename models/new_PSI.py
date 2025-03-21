@@ -57,42 +57,44 @@ def add_PSI(m) -> Model:
         rate_name="vPS1",
         function=vPS1,
         stoichiometry={"P700FA": -1, "P700+FA-": 1},
-        modifiers=["P700FA", "ps2cs"],                      # !
-        dynamic_variables=["P700FA", "ps2cs"],              # !
+        modifiers=["P700FA", "ps2cs"],                      # ?
+        dynamic_variables=["P700FA", "ps2cs"],              # ?
         parameters=["pfd"],
     )
 
-    m.add_reaction(
+    m.add_reaction_from_args(
         rate_name="v2_to_P700FA-",
         function=mass_action_22_rev,
         stoichiometry={"P700+FA-": -1, "P700FA-": 1, "PC":1}, # "PCred": -1 not included because computed by moiety
-        modifiers=["PCred"], # has to be included here then!
-        parameters=["kPCox", "Keq_PCP700"],
-        reversible=True
+        # modifiers=["PCred"], # has to be included here then!
+        # parameters=["kPCox", "Keq_PCP700"],
+        args=["P700+FA-", "PCred", "PC", "P700FA-", "kPCox", "Keq_PCP700"]
     )
-    m.add_reaction(
+
+    m.add_reaction_from_args(
         rate_name="v3_to_P700FA",
         function=mass_action_22_rev,
-        stoichiometry={"P700FA-": -1, "Fd": -1, "P700FA": 1},
-        modifiers=["Fdred"],
-        parameters=["kFdred", "Keq_FAFd"],
-        reversible=True
+        stoichiometry={"P700FA-": -1, "Fd": -1, "P700FA": +1},
+        # modifiers=["Fdred"],
+        # parameters=["kFdred", "Keq_FAFd"],
+        args=["P700FA-", "Fd", "P700FA", "Fdred", "kFdred", "Keq_FAFd"]
     )
-    m.add_reaction(
+    m.add_reaction_from_args(
         rate_name = "v4_to_P700+FA",
         function = mass_action_22_rev,
         stoichiometry = {"P700+FA-": -1, "Fd": -1},
-        modifiers = ["Fdred", "P700+FA"],
-        parameters = ["kFdred", "Keq_FAFd"],
-        reversible=True
+        # modifiers = ["Fdred", "P700+FA"],
+        # parameters = ["kFdred", "Keq_FAFd"],
+        args = ["P700+FA-", "Fd", "P700+FA", "Fdred", "kFdred", "Keq_FAFd"]
     )
-    m.add_reaction(
+
+    m.add_reaction_from_args(
         rate_name = "v5_to_P700FA",
         function = mass_action_22_rev,
-        stoichiometry = {"P700FA": 1, "PC": 1},
-        modifiers = ["PCred", "P700+FA"],
-        parameters=["kPCox", "Keq_PCP700"],
-        reversible=True
+        stoichiometry = {"P700FA": +1, "PC": +1},
+        # modifiers = ["PCred", "P700+FA"],
+        # parameters=["kPCox", "Keq_PCP700"],
+        args = ["P700+FA", "PCred", "P700FA", "PC", "kPCox", "Keq_PCP700"]
     )
 
     return m
