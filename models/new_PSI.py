@@ -3,6 +3,7 @@ from modelbase.ode import Model
 from .rate_laws import mass_action_22_rev
 from .rate_laws import moiety_3
 from .rate_laws import vPS1
+from .rate_laws import normalize_concentration
 
 # as written in matuszynska.py:
 # m.add_algebraic_module(
@@ -95,6 +96,44 @@ def add_PSI(m) -> Model:
         # modifiers = ["PCred", "P700+FA"],
         # parameters=["kPCox", "Keq_PCP700"],
         args = ["P700+FA", "PCred", "P700FA", "PC", "kPCox", "Keq_PCP700"]
+    )
+
+    # normalization of PSI compounds
+
+    m.add_algebraic_module(
+        module_name="rel_P700+FA_alm",
+        function=normalize_concentration,
+        compounds=["P700+FA"],
+        derived_compounds=["rel_P700+FA"],
+        parameters=["PSItot"],
+        args = ["P700+FA", "PSItot"]
+    )
+
+    m.add_algebraic_module(
+        module_name="rel_P700FA_alm",
+        function=normalize_concentration,
+        compounds=["P700FA"],
+        derived_compounds=["rel_P700FA"],
+        parameters=["PSItot"],
+        args = ["P700FA", "PSItot"]
+    )
+
+    m.add_algebraic_module(
+        module_name="rel_P700FA-_alm",
+        function=normalize_concentration,
+        compounds=["P700FA-"],
+        derived_compounds=["rel_P700FA-"],
+        parameters=["PSItot"],
+        args = ["P700FA-", "PSItot"]
+    )
+
+    m.add_algebraic_module(
+        module_name="rel_P700+FA-_alm",
+        function=normalize_concentration,
+        compounds=["P700+FA-"],
+        derived_compounds=["rel_P700+FA-"],
+        parameters=["PSItot"],
+        args = ["P700+FA-", "PSItot"]
     )
 
     return m
