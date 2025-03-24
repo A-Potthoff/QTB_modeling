@@ -58,28 +58,40 @@ def add_PSI(m) -> Model:
         rate_name="vPS1",
         function=vPS1,
         stoichiometry={"P700FA": -1, "P700+FA-": 1},
-        modifiers=["P700FA", "ps2cs"],                      # ?
+        #modifiers=["P700FA", "ps2cs"],                      # ! try if commenting out changes anything
         dynamic_variables=["P700FA", "ps2cs"],              # ?
         parameters=["pfd"],
     )
 
-    m.add_reaction_from_args(
+    # m.add_reaction_from_args(
+    #     rate_name="v2_to_P700FA-",
+    #     function=mass_action_22_rev,
+    #     stoichiometry={"P700+FA-": -1, "P700FA-": +1, "PC": +1}, # "PCred": -1 not included because computed by moiety
+    #     # modifiers=["PCred"], # has to be included here then!
+    #     # parameters=["kPCox", "Keq_PCP700"],
+    #     args=["P700+FA-", "PCred", "PC", "P700FA-", "kPCox", "Keq_PCP700"]
+    # )
+
+    m.add_reaction(
         rate_name="v2_to_P700FA-",
         function=mass_action_22_rev,
-        stoichiometry={"P700+FA-": -1, "P700FA-": 1, "PC":1}, # "PCred": -1 not included because computed by moiety
+        stoichiometry={"P700+FA-": -1, "PC": +1, "P700FA-": +1}, # "PCred": -1 not included because computed by moiety
+        dynamic_variables=["P700+FA-", "PCred", "PC", "P700FA-"],
+        parameters=["kPCox", "Keq_PCP700"],
         # modifiers=["PCred"], # has to be included here then!
-        # parameters=["kPCox", "Keq_PCP700"],
-        args=["P700+FA-", "PCred", "PC", "P700FA-", "kPCox", "Keq_PCP700"]
+        # args=["P700+FA-", "PCred", "PC", "P700FA-", "kPCox", "Keq_PCP700"]
     )
+# UserWarning: Supplied dynamic variables {'P700FA-', 'PC'} for rate v2_to_P700FA- that aren't in substrates or modifiers
 
     m.add_reaction_from_args(
         rate_name="v3_to_P700FA",
         function=mass_action_22_rev,
         stoichiometry={"P700FA-": -1, "Fd": -1, "P700FA": +1},
-        # modifiers=["Fdred"],
+        # modifiers=["Fdred"],  
         # parameters=["kFdred", "Keq_FAFd"],
         args=["P700FA-", "Fd", "P700FA", "Fdred", "kFdred", "Keq_FAFd"]
     )
+
     m.add_reaction_from_args(
         rate_name = "v4_to_P700+FA",
         function = mass_action_22_rev,
