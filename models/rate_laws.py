@@ -41,9 +41,9 @@ def rapid_eq_3_3(s1, s2, s3, p1, p2, p3, k, q):
     return k * (s1 * s2 * s3 - (p1 * p2 * p3 / q))
 
 
-def vPS1(A, ps2cs, pfd):
+def vPS1(P700FA, ps2cs, pfd):
     """reaction rate constant for open PSI"""
-    return (1 - ps2cs) * pfd * A
+    return (1 - ps2cs) * pfd * P700FA
 
 
 def normalize_concentration(concentration, total):

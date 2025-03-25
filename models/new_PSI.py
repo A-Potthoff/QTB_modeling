@@ -15,7 +15,7 @@ from .rate_laws import normalize_concentration
 # )
 
 # commented out in matuszynska.py:
-    # m.add_reaction( # ! attention
+    # m.add_reaction(
 #     rate_name="vPS1",
 #     function=vPS1,
 #     stoichiometry={"Fd": -1, "PC": 1},
@@ -58,8 +58,8 @@ def add_PSI(m) -> Model:
         rate_name="vPS1",
         function=vPS1,
         stoichiometry={"P700FA": -1, "P700+FA-": 1},
-        #modifiers=["P700FA", "ps2cs"],                      # ! try if commenting out changes anything
-        dynamic_variables=["P700FA", "ps2cs"],              # ?
+        modifiers=["P700FA", "ps2cs"],  # * redundant line, does not change the model, tested with and without and simulation results were identical
+        dynamic_variables=["P700FA", "ps2cs"],
         parameters=["pfd"],
     )
 

@@ -8,8 +8,8 @@ from .rate_laws import normalize_concentration
 
 def get_model():
     m = get_matusznyska()
+    m = add_PSI(m)    
     m = add_mehler(m)
-    m = add_PSI(m)
     m = add_consumption(m)
     m = add_thioredoxin(m)
 

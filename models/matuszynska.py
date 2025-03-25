@@ -32,7 +32,7 @@ def Pimoiety(
     RUBP,
     RU5P,
     ATP,
-    Cp,
+    Cp, # CP is the total concentration of phosphate
 ):
     return Cp - (
         PGA

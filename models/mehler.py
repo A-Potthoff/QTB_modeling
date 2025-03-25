@@ -67,7 +67,8 @@ def vAscorbate(A, H, kf1, kr1, kf2, kr2, kf3, kf4, kr4, kf5, XT):
     the cycle stretched to a linear chain with
     two steps producing the MDA
     two steps releasing ASC
-    and one step producing hydrogen peroxide"""
+    and one step producing hydrogen peroxide.
+    A = Ascorbate in this case!"""
     nom = A * H * XT
     denom = (
         A * H * (1 / kf3 + 1 / kf5)
@@ -88,15 +89,19 @@ def vMDAreduct(NADPH, MDA, kcatMDAR, KmMDAR_NADPH, KmMDAR_MDA, MDAR0):
     denom = KmMDAR_NADPH * MDA + KmMDAR_MDA * NADPH + NADPH * MDA + KmMDAR_NADPH * KmMDAR_MDA
     return nom / denom
 
+# def vMehler(A, O2ext, kMehler):
+#     """Draft Mehler reaction inspired from PSI reaction.
+#     This reaction is lumping the reduction of O2 instead of Fd
+#     resulting in Superoxide, as well as the Formation of H2O2 in one reaction.
+#     The entire reaction is scaled by the arbitrary parameter kMehler
+#     """
+#     return A * kMehler * O2ext
 
-def vMehler(A, O2ext, kMehler):
-    """Draft Mehler reaction inspired from PSI reaction.
-    This reaction is lumping the reduction of O2 instead of Fd
-    resulting in Superoxide, as well as the Formation of H2O2 in one reaction.
-    The entire reaction is scaled by the arbitrary parameter kMehler
+def vMehler(PSI_red_acceptor, O2ext, kMehler):
     """
-    return A * kMehler * O2ext
-
+    acceptor_side of the PSI is the side of the Mehler reaction
+    """
+    return kMehler * O2ext * PSI_red_acceptor
 
 def vGR(NADPH, GSSG, kcat_GR, GR0, KmNADPH, KmGSSG):
     nom = kcat_GR * GR0 * NADPH * GSSG
@@ -257,14 +262,38 @@ def add_mehler(m) -> Model:
         parameters=["kcatMDAR", "KmMDAR_NADPH", "KmMDAR_MDA", "MDAR0"],
     )
 
+    # m.add_reaction( # does this function create electrons out of nowhere
+    #     rate_name="vMehler",
+    #     function=vMehler,
+    #     stoichiometry={
+    #         "H2O2": 1 * m.get_parameter("convf")
+    #     },  # required to convert as rates of PSI are expressed in mmol/mol Chl
+    #     modifiers=["A1"],
+    #     parameters=["O2ext", "kMehler"],
+    # )
+
     m.add_reaction(
-        rate_name="vMehler",
+        rate_name="v3_Mehler",
         function=vMehler,
         stoichiometry={
-            "H2O2": 1 * m.get_parameter("convf")
+            "H2O2": +1 * m.get_parameter("convf"),
+            "P700FA": +1,
+            "P700FA-": -1
         },  # required to convert as rates of PSI are expressed in mmol/mol Chl
-        modifiers=["A1"],
-        parameters=["O2ext", "kMehler"],
+        dynamic_variables=["P700FA-"],
+        parameters=["O2ext", "kMehler"]
+    )
+
+    m.add_reaction(
+        rate_name="v4_Mehler",
+        function=vMehler,
+        stoichiometry={
+            "H2O2": +1 * m.get_parameter("convf"),
+            # "P700+FA": +1, # is a derived compound!
+            "P700+FA-": -1
+        },  # required to convert as rates of PSI are expressed in mmol/mol Chl
+        dynamic_variables=["P700+FA-"],
+        parameters=["O2ext", "kMehler"]
     )
 
     m.add_reaction(
