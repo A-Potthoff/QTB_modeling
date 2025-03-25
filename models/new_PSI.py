@@ -82,6 +82,7 @@ def add_PSI(m) -> Model:
         # args=["P700+FA-", "PCred", "PC", "P700FA-", "kPCox", "Keq_PCP700"]
     )
 # UserWarning: Supplied dynamic variables {'P700FA-', 'PC'} for rate v2_to_P700FA- that aren't in substrates or modifiers
+# this warning can be ignored, as it does not affect the model (tested by comparing simulation results)
 
     m.add_reaction_from_args(
         rate_name="v3_to_P700FA",
