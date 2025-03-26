@@ -150,14 +150,3 @@ def add_PSI(m) -> Model:
     )
 
     return m
-
-
-
-
-# ? how do I deal with A3 not being computed explicitly? Do I remove it from the stoichiometry?
-# ? can I reuse kPCox and kFdred?
-# ? can I reuse Keq_PCP700 and Keq_FAFd?
-# ? How do I define vPS1?
-# ? what is ps2cs?
-
-

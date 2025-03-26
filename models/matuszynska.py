@@ -497,7 +497,7 @@ p = {
     # pH and protons
     "pHstroma": 7.9,
     "kLeak": 10.0,  # 0.010, # [1/s] leakage rate -- inconsistency with Kathrine
-    "bH": 100.0,  # proton buffer: ratio total / free protons
+    "bH": 100.0,  # proton buffer: ratio total / free protons  #!!!
     # rate constants
     "kPQred": 250.0,  # [1/(s*(mmol/molChl))]
     "kCytb6f": 2.5,  # a rough estimate: transfer PQ->cytf should be ~10ms
