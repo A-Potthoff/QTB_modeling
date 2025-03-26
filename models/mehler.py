@@ -276,10 +276,10 @@ def add_mehler(m) -> Model:
         rate_name="v3_Mehler",
         function=vMehler,
         stoichiometry={
-            "H2O2": +1 * m.get_parameter("convf"),
-            "P700FA": +1,
-            "P700FA-": -1
-        },  # required to convert as rates of PSI are expressed in mmol/mol Chl
+            "H2O2": +1 * m.get_parameter("convf"), # required to convert as rates of PSI are expressed in mmol/mol Chl
+            "P700FA": +2,
+            "P700FA-": -2
+        },
         dynamic_variables=["P700FA-"],
         parameters=["O2ext", "kMehler"]
     )
@@ -290,7 +290,7 @@ def add_mehler(m) -> Model:
         stoichiometry={
             "H2O2": +1 * m.get_parameter("convf"),
             # "P700+FA": +1, # is a derived compound!
-            "P700+FA-": -1
+            "P700+FA-": -2
         },  # required to convert as rates of PSI are expressed in mmol/mol Chl
         dynamic_variables=["P700+FA-"],
         parameters=["O2ext", "kMehler"]

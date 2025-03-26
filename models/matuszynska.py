@@ -1163,6 +1163,10 @@ def get_matusznyska() -> Model:
         reversible=True,
     )
 
+    ###############################################################################
+    # EXPORT REACTIONS
+    ###############################################################################
+
     m.add_reaction(
         rate_name="vpga",
         function=triose_export,
