@@ -63,26 +63,26 @@ def add_PSI(m) -> Model:
         parameters=["pfd"],
     )
 
-    # m.add_reaction_from_args(
-    #     rate_name="v2_to_P700FA-",
-    #     function=mass_action_22_rev,
-    #     stoichiometry={"P700+FA-": -1, "P700FA-": +1, "PC": +1}, # "PCred": -1 not included because computed by moiety
-    #     # modifiers=["PCred"], # has to be included here then!
-    #     # parameters=["kPCox", "Keq_PCP700"],
-    #     args=["P700+FA-", "PCred", "PC", "P700FA-", "kPCox", "Keq_PCP700"]
-    # )
-
-    m.add_reaction(
+    m.add_reaction_from_args(
         rate_name="v2_to_P700FA-",
         function=mass_action_22_rev,
-        stoichiometry={"P700+FA-": -1, "PC": +1, "P700FA-": +1}, # "PCred": -1 not included because computed by moiety
-        dynamic_variables=["P700+FA-", "PCred", "PC", "P700FA-"],
-        parameters=["kPCox", "Keq_PCP700"],
+        stoichiometry={"P700+FA-": -1, "P700FA-": +1, "PC": +1}, # "PCred": -1 not included because computed by moiety
         # modifiers=["PCred"], # has to be included here then!
-        # args=["P700+FA-", "PCred", "PC", "P700FA-", "kPCox", "Keq_PCP700"]
+        # parameters=["kPCox", "Keq_PCP700"],
+        args=["P700+FA-", "PCred", "PC", "P700FA-", "kPCox", "Keq_PCP700"]
     )
-# UserWarning: Supplied dynamic variables {'P700FA-', 'PC'} for rate v2_to_P700FA- that aren't in substrates or modifiers
-# this warning can be ignored, as it does not affect the model (tested by comparing simulation results)
+
+    # m.add_reaction(
+    #     rate_name="v2_to_P700FA-",
+    #     function=mass_action_22_rev,
+    #     stoichiometry={"P700+FA-": -1, "PC": +1, "P700FA-": +1}, # "PCred": -1 not included because computed by moiety
+    #     dynamic_variables=["P700+FA-", "PCred", "PC", "P700FA-"],
+    #     parameters=["kPCox", "Keq_PCP700"],
+    #     # modifiers=["PCred"], # has to be included here then!
+    #     # args=["P700+FA-", "PCred", "PC", "P700FA-", "kPCox", "Keq_PCP700"]
+    # )
+    # UserWarning: Supplied dynamic variables {'P700FA-', 'PC'} for rate v2_to_P700FA- that aren't in substrates or modifiers
+    # this warning can be ignored, as it does not affect the model (tested by comparing simulation results)
 
     m.add_reaction_from_args(
         rate_name="v3_to_P700FA",
