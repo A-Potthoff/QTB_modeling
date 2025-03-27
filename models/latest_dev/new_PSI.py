@@ -4,6 +4,7 @@ from .rate_laws import mass_action_22_rev
 from .rate_laws import moiety_3
 from .rate_laws import vPS1
 from .rate_laws import normalize_concentration
+from .rate_laws import normalize_2_concentrations
 
 # as written in matuszynska.py:
 # m.add_algebraic_module(
@@ -147,6 +148,22 @@ def add_PSI(m) -> Model:
         derived_compounds=["rel_P700+FA-"],
         parameters=["PSItot"],
         args = ["P700+FA-", "PSItot"]
+    )
+
+    m.add_algebraic_module(
+        module_name="rel_P700_alm",
+        function=normalize_2_concentrations,
+        compounds=["P700FA-", "P700FA"],
+        derived_compounds=["rel_P700"],
+        parameters=["PSItot"]
+    )
+
+    m.add_algebraic_module(
+        module_name="rel_P700+_alm",
+        function=normalize_2_concentrations,
+        compounds=["P700+FA-", "P700+FA"],
+        derived_compounds=["rel_P700+"],
+        parameters=["PSItot"]
     )
 
     return m
