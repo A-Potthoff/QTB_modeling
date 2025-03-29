@@ -133,6 +133,7 @@ def ps1states(PC, PCred, Fd, Fdred, LHC, ps2cs, PSItot, kFdred, Keq_FAFd, Keq_PC
     QSSA calculates open state of PSI
     depends on reduction states of plastocyanin and ferredoxin
     C = [PC], F = [Fd] (ox. forms)
+    A1 = P700+FA-, aka P700*, aka A*
     """
     L = (1 - ps2cs) * pfd
 

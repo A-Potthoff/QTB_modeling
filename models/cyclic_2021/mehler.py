@@ -8,6 +8,9 @@ def ps1analytic_mehler(PC, PCred, Fd, Fdred, LHC, ps2cs, PSItot, kFdred, KeqF, K
     QSSA calculates open state of PSI
     depends on reduction states of plastocyanin and ferredoxin
     C = [PC], F = [Fd] (ox. forms)
+    y0 = P700FA
+    y1 = P700+FA-
+    y2 = P700+FA
     """
     kLI = (1 - ps2cs) * pfd
 
@@ -45,13 +48,13 @@ def ps1analytic_mehler(PC, PCred, Fd, Fdred, LHC, ps2cs, PSItot, kFdred, KeqF, K
     return y0, y1, y2
 
 
-def vFd_red(Fd, Fdred, A1, A2, kFdred, Keq_FAFd):
+def vFd_red(Fd, Fdred, P700pFAm, P700pFA, kFdred, Keq_FAFd):
     """rate of the redcution of Fd by the activity of PSI
     used to be equall to the rate of PSI but now
     alternative electron pathway from Fd allows for the production of ROS
     hence this rate has to be separate
     """
-    return kFdred * Fd * A1 - kFdred / Keq_FAFd * Fdred * A2
+    return kFdred * Fd * P700pFAm - kFdred / Keq_FAFd * Fdred * P700pFA
 
 
 def vAscorbate(A, H, kf1, kr1, kf2, kr2, kf3, kf4, kr4, kf5, XT):
@@ -187,7 +190,7 @@ def add_mehler(m) -> Model:
         module_name="ps1states",
         function=ps1analytic_mehler,
         compounds=["PC", "PCred", "Fd", "Fdred", "LHC", "ps2cs"],
-        derived_compounds=["A0", "A1", "A2"],
+        derived_compounds=["P700FA", "P700+FA-", "P700+FA"],
         parameters=[
             "PSItot",
             "kFdred",
@@ -220,8 +223,8 @@ def add_mehler(m) -> Model:
         rate_name="vPS1",
         function=vPS1,
         stoichiometry={"PC": 1},
-        modifiers=["A0", "ps2cs"],
-        dynamic_variables=["A0", "ps2cs"],
+        modifiers=["P700FA", "ps2cs"],
+        dynamic_variables=["P700FA", "ps2cs"],
         parameters=["pfd"],
     )
 
@@ -229,7 +232,7 @@ def add_mehler(m) -> Model:
         rate_name="vFdred",
         function=vFd_red,
         stoichiometry={"Fd": -1},
-        modifiers=["Fdred", "A1", "A2"],
+        modifiers=["Fdred", "P700+FA-", "P700+FA"],
         parameters=["kFdred", "Keq_FAFd"],
     )
 
@@ -255,7 +258,7 @@ def add_mehler(m) -> Model:
         stoichiometry={
             "H2O2": 1 * m.get_parameter("convf")
         },  # required to convert as rates of PSI are expressed in mmol/mol Chl
-        modifiers=["A1"],
+        modifiers=["P700+FA-"],
         parameters=["O2ext", "kMehler"],
     )
 

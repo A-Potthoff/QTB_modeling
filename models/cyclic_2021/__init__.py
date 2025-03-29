@@ -51,4 +51,28 @@ def get_model():
         parameters=["APtot"],
     )
 
+    m.add_algebraic_module(
+        module_name="rel_P700FA_alm",
+        function=normalize_concentration,
+        compounds=["P700FA"],
+        derived_compounds=["rel_P700FA"],
+        parameters=["PSItot"],
+    )
+
+    m.add_algebraic_module(
+        module_name="rel_P700+FA_alm",
+        function=normalize_concentration,
+        compounds=["P700+FA"],
+        derived_compounds=["rel_P700+FA"],
+        parameters=["PSItot"],
+    )
+
+    m.add_algebraic_module(
+        module_name="rel_P700+FA-_alm",
+        function=normalize_concentration,
+        compounds=["P700+FA-"],
+        derived_compounds=["rel_P700+FA-"],
+        parameters=["PSItot"],
+    )
+
     return m
