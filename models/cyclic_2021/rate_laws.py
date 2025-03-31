@@ -45,3 +45,5 @@ def vPS1(A, ps2cs, pfd):
 def normalize_concentration(concentration, total):
     return concentration / total
         
+def normalize_2_concentrations(c1, c2, total):
+    return (c1+c2) / total

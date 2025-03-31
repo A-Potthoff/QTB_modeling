@@ -156,7 +156,7 @@ def ps2states(PQ, PQred, ps2cs, Q, PSIItot, k2, kF, _kH, Keq_PQred, kPQred, pfd,
         Bs.append([B0, B1, B2, B3])
     return np.array(Bs).T
 
-
+#fluorescence is the energy re-emission by chlorophyll that is not transfered to photochemistry or NPQ. High NPQ -> low fluorescence, 
 def fluorescence(Q, B0, B2, ps2cs, k2, kF, kH, kH0):
     return (ps2cs * kF * B0) / (kF + k2 + kH * Q) + (ps2cs * kF * B2) / (kF + kH * Q)
 

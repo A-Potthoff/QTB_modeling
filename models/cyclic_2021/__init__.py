@@ -4,6 +4,7 @@ from .mehler import add_mehler
 from .thioredoxin import add_thioredoxin
 
 from .rate_laws import normalize_concentration
+from .rate_laws import normalize_2_concentrations
 
 def get_model():
     m = get_matusznyska()
@@ -73,6 +74,14 @@ def get_model():
         compounds=["P700+FA-"],
         derived_compounds=["rel_P700+FA-"],
         parameters=["PSItot"],
+    )
+
+    m.add_algebraic_module(
+        module_name="rel_P700+_alm",
+        function=normalize_2_concentrations,
+        compounds=["P700+FA-", "P700+FA"],
+        derived_compounds=["rel_P700+"],
+        parameters=["PSItot"]
     )
 
     return m
