@@ -1,16 +1,7 @@
 import numpy as np
 from modelbase.ode import Model
 
-from .rate_laws import (
-    moiety_1,
-    proportional,
-    rapid_eq_1_1,
-    rapid_eq_2_1,
-    rapid_eq_2_2,
-    rapid_eq_3_3,
-    vPS1,
-    michaelis_menten,
-)
+from .rate_laws import *
 
 
 ### Phosphate moieties
@@ -224,24 +215,9 @@ def vLhcdeprotonation(Psbsp, kDeprotonation):
 ### Photosystem I
 #(PSI does not perform significant NPQ)
 
-# old form (updated in "new_PSI.py")
-def ps1states(PC, PCred, Fd, Fdred, LHC, ps2cs, PSItot, kFdred, Keq_FAFd, Keq_PCP700, kPCox, pfd):
-    """
-    QSSA calculates open state of PSI
-    depends on reduction states of plastocyanin and ferredoxin
-    C = [PC], F = [Fd] (ox. forms)
-    """
-    L = (1 - ps2cs) * pfd
-
-    A1 = PSItot / (
-        1
-        + L / (kFdred * Fd)
-        + (1 + Fdred / (Keq_FAFd * Fd)) * (PC / (Keq_PCP700 * PCred) + L / (kPCox * PCred))
-    )
-    return A1
-
-
-
+def vPS1(P700FA, ps2cs, pfd):
+    """reaction rate constant for open PSI"""
+    return (1 - ps2cs) * pfd * P700FA
 
 
 ### oxygen helper functions
@@ -447,6 +423,10 @@ variables = [
     "R5P",
     "RUBP",
     "RU5P",
+    "P700FA",
+    "P700+FA-",
+    "P700FA-"
+    #"P700+FA" is an algebraic module
 ]
 
 
@@ -683,6 +663,8 @@ def get_matusznyska() -> Model:
         parameters=["pHstroma"],
     )
 
+    # equilibrium constants
+
     m.add_derived_parameter(
         parameter_name="Keq_PQred",
         function=keq_PQred,
@@ -713,7 +695,39 @@ def get_matusznyska() -> Model:
         parameters=["E0_Fd", "F", "E0_NADP", "pHstroma", "dG_pH", "RT"],
     )
 
+    m.add_algebraic_module(             #pH has to be defined here for Keq_ATPsynthase and Keq_B6f
+        module_name="calculate_pH",
+        function=calculate_pH,
+        compounds=["H"],
+        derived_compounds=["pH"],
+    )
+
+    m.add_algebraic_module(
+        module_name="Keq_ATPsynthase",
+        function=Keq_ATP,
+        compounds=["pH"],
+        derived_compounds=["Keq_ATPsynthase"],
+        parameters=["DeltaG0_ATP", "dG_pH", "HPR", "pHstroma", "Pi_mol", "RT"],
+    )
+
+    m.add_algebraic_module(
+        module_name="Keq_B6f",
+        function=Keq_cytb6f,
+        compounds=["pH"],
+        derived_compounds=["Keq_B6f"],
+        parameters=["F", "E0_PQ", "E0_PC", "pHstroma", "RT", "dG_pH"],
+    )
+
+
     ### algebraic modules (alm) (derived compounds)
+
+    m.add_algebraic_module(
+        module_name="P700+FA_alm",
+        function=moiety_3,
+        compounds=["P700FA-", "P700FA", "P700+FA-"],
+        derived_compounds=["P700+FA"],
+        parameters=["PSItot"]
+    )
 
     m.add_algebraic_module(
         module_name="pq_alm",
@@ -805,26 +819,11 @@ def get_matusznyska() -> Model:
     )
 
     m.add_algebraic_module(
-        module_name="ps1states",
-        function=ps1states,
-        compounds=["PC", "PCred", "Fd", "Fdred", "LHC", "ps2cs"],
-        derived_compounds=["A1"],
-        parameters=["PSItot", "kFdred", "Keq_FAFd", "Keq_PCP700", "kPCox", "pfd"],
-    )
-
-    m.add_algebraic_module(
         module_name="fluorescence",
         function=fluorescence,
         compounds=["Q", "B0", "B2", "ps2cs"],
         derived_compounds=["Fluo"],
         parameters=["k2", "kF", "kH", "kH0"],
-    )
-
-    m.add_algebraic_module(
-        module_name="calculate_pH",
-        function=calculate_pH,
-        compounds=["H"],
-        derived_compounds=["pH"],
     )
 
     m.add_algebraic_module(
@@ -860,22 +859,6 @@ def get_matusznyska() -> Model:
         parameters=["Kpxt", "Pext", "Kpi", "Kpga", "Kgap", "Kdhap"],
     )
 
-    m.add_algebraic_module(
-        module_name="Keq_ATPsynthase",
-        function=Keq_ATP,
-        compounds=["pH"],
-        derived_compounds=["Keq_ATPsynthase"],
-        parameters=["DeltaG0_ATP", "dG_pH", "HPR", "pHstroma", "Pi_mol", "RT"],
-    )
-
-    m.add_algebraic_module(
-        module_name="Keq_B6f",
-        function=Keq_cytb6f,
-        compounds=["pH"],
-        derived_compounds=["Keq_B6f"],
-        parameters=["F", "E0_PQ", "E0_PC", "pHstroma", "RT", "dG_pH"],
-    )
-
     ##########################################################################
     # Rate of electron flow through the photosystems.
     # Calling algebraic modules calculating excited states of each photosystem
@@ -888,14 +871,67 @@ def get_matusznyska() -> Model:
         dynamic_variables=["B1"],  # doesn't depend on PQ
         parameters=["k2"],
     )
-    m.add_reaction( # ! attention
-        rate_name="vPS1",
+
+    # PSI reactions
+
+    m.add_reaction(
+        rate_name="vPS1",   # vPSI is v1, the excitation rate
         function=vPS1,
-        stoichiometry={"Fd": -1, "PC": 1},
-        modifiers=["A1", "ps2cs"],
-        dynamic_variables=["A1", "ps2cs"],  # doesn't depend on Fd
-        parameters=["pfd"],
+        stoichiometry={"P700FA": -1, "P700+FA-": 1},
+        modifiers=["P700FA", "ps2cs"],  # * redundant line, does not change the model, tested with and without and simulation results were identical
+        dynamic_variables=["P700FA", "ps2cs"],
+        parameters=["pfd"]
     )
+    
+    m.add_reaction_from_args(
+        rate_name="v2_to_P700FA-",
+        function=mass_action_22_rev,
+        stoichiometry={"P700+FA-": -1, "P700FA-": +1, "PC": +1}, # "PCred": -1 not included because computed by moiety
+        # modifiers=["PCred"], # has to be included here then!
+        # parameters=["kPCox", "Keq_PCP700"],
+        args=["P700+FA-", "PCred", "PC", "P700FA-", "kPCox", "Keq_PCP700"]
+    )
+
+    # m.add_reaction(
+    #     rate_name="v2_to_P700FA-",
+    #     function=mass_action_22_rev,
+    #     stoichiometry={"P700+FA-": -1, "PC": +1, "P700FA-": +1}, # "PCred": -1 not included because computed by moiety
+    #     dynamic_variables=["P700+FA-", "PCred", "PC", "P700FA-"],
+    #     parameters=["kPCox", "Keq_PCP700"],
+    #     # modifiers=["PCred"], # has to be included here then!
+    #     # args=["P700+FA-", "PCred", "PC", "P700FA-", "kPCox", "Keq_PCP700"]
+    # )
+    # UserWarning: Supplied dynamic variables {'P700FA-', 'PC'} for rate v2_to_P700FA- that aren't in substrates or modifiers
+    # this warning can be ignored, as it does not affect the model (tested by comparing simulation results)
+
+    m.add_reaction_from_args(
+        rate_name="v3_to_P700FA",
+        function=mass_action_22_rev,
+        stoichiometry={"P700FA-": -1, "Fd": -1, "P700FA": +1},
+        # modifiers=["Fdred"],  
+        # parameters=["kFdred", "Keq_FAFd"],
+        args=["P700FA-", "Fd", "P700FA", "Fdred", "kFdred", "Keq_FAFd"]
+    )
+
+    m.add_reaction_from_args(
+        rate_name = "v4_to_P700+FA",
+        function = mass_action_22_rev,
+        stoichiometry = {"P700+FA-": -1, "Fd": -1},
+        # modifiers = ["Fdred", "P700+FA"],
+        # parameters = ["kFdred", "Keq_FAFd"],
+        args = ["P700+FA-", "Fd", "P700+FA", "Fdred", "kFdred", "Keq_FAFd"]
+    )
+
+    m.add_reaction_from_args(
+        rate_name = "v5_to_P700FA",
+        function = mass_action_22_rev,
+        stoichiometry = {"P700FA": +1, "PC": +1},
+        # modifiers = ["PCred", "P700+FA"],
+        # parameters=["kPCox", "Keq_PCP700"],
+        args = ["P700+FA", "PCred", "P700FA", "PC", "kPCox", "Keq_PCP700"]
+    )
+
+    # further reactions:
 
     m.add_reaction(
         rate_name="vPTOX",
