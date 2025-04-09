@@ -42,9 +42,15 @@ from .rate_laws import *
 #     parameters=["k2"],
 # )
 
+
+
 # unchanged from matuszynska script
 def fluorescence(Q, B0, B2, ps2cs, k2, kF, kH, kH0):
     return (ps2cs * kF * B0) / (kF + k2 + kH * Q) + (ps2cs * kF * B2) / (kF + kH * Q)
+
+#kH0 ergänzen!
+
+
 
 def add_PSII(m: Model) -> Model:
 
@@ -84,14 +90,14 @@ def add_PSII(m: Model) -> Model:
     m.add_reaction_from_args(
         rate_name="vB10F",
         function=mass_action_1s,
-        stoichiometry={"B1": -1, "B0": 1},
+        stoichiometry={"B1": -1, "B0": 1}, 
         args=["B1", "kF"]
     )
 
     m.add_reaction_from_args(
         rate_name="vB12",
         function=mass_action_1s,
-        stoichiometry={"B1": -1, "B2": 1},
+        stoichiometry={"B1": -1, "B2": 1, "H": 1 / m.get_parameter("bH")}, #watersplitting occurs on lumenal side and protons will be buffered in the lumen by amino acids
         args=["B1", "k2"] # k2 is "kPchem" or "kP"
     )
 
@@ -122,7 +128,5 @@ def add_PSII(m: Model) -> Model:
         stoichiometry={"B2": 1}, #"B3": -1 (alm)
         args=["B3", "Q", "kH_factor", "kH0"]
     )
-
-    #FIXME: INSERT 0.5 stoichiometries where necessary!
 
     return m

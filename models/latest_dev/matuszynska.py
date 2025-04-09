@@ -430,7 +430,7 @@ variables = [
 
 
 p = {
-    "convf": 3.2 * 10e-3,  # converts ATP and NADPH
+    "convf": 3.2 * 10e-3,  # converts ATP and NADPH from mol/L in mmol/molChl
     "PSIItot": 2.5,  # [mmol/molChl] total concentration of PSII
     "PSItot": 2.5,
     "PQtot": 17.5,  # [mmol/molChl]
@@ -438,7 +438,7 @@ p = {
     "Fdtot": 5.0,  # Bohme1987
     "Ctot": 2.5,  # source unclear (Schoettler says 0.4...?, but plausible to assume that complexes (PSII,PSI,b6f) have approx. same abundance)
     "NADPtot": 0.8,  # estimate from ~ 0.8 mM, Heineke1991
-    "APtot": 2.55,  # [mmol/molChl] Bionumbers ~2.55mM (=81mmol/molChl) (FIXME: Soma had 50)
+    "APtot": 2.55,  # [mmol/molChl] Bionumbers ~2.55mM (=81mmol/molChl)
     "Psbstot": 1.0,  # relative pool of PsbS
     "Xtot": 1.0,  # relative pool of carotenoids (V+A+Z)
     # Mara "ATPasetot": 1., # relative pool of ATPase
@@ -603,11 +603,11 @@ def dg_ph(r, t):
 
 
 def h_stroma(ph_stroma):
-    return 3.2e4 * 10 ** (-ph_stroma)
+    return 3.2e4 * 10 ** (-ph_stroma) # in mmol/molChl
 
 
 def h_stroma2(ph_stroma):
-    return 1000.0 * 10.0 ** (-ph_stroma)
+    return 1000.0 * 10.0 ** (-ph_stroma) # in mmol pro l
 
 
 def protonation(h_stroma):
@@ -643,6 +643,7 @@ def get_matusznyska() -> Model:
         parameters=["R", "T"],
     )
 
+    # we used two different definitions for H_stroma (!). This one is the one returning in mmol pro l used for kProtonation
     m.add_derived_parameter(
         parameter_name="Hstroma",
         function=h_stroma,
@@ -655,7 +656,7 @@ def get_matusznyska() -> Model:
         parameters=["Hstroma"],
     )
 
-    # FIXME: we used two different definitions for H_stroma (!). This one is Nima's
+    # we used two different definitions for H_stroma (!). This one is the one returning in mmol pro l
     m.add_derived_parameter(
         parameter_name="H_stroma",
         function=h_stroma2,
@@ -961,7 +962,7 @@ def get_matusznyska() -> Model:
     m.add_reaction(
         rate_name="vCyc",
         function=vCyc,
-        stoichiometry={"PQ": -1, "Fd": 2},
+        stoichiometry={"PQ": -1, "Fd": 2}, # H comes from Stroma, which is fixed via pH_stroma
         modifiers=["Fdred"],
         parameters=["kcyc"],
     )
