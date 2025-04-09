@@ -983,7 +983,7 @@ def get_matusznyska() -> Model:
         parameters=["kLeak", "pHstroma"],
     )
 
-    m.add_reaction(
+    m.add_reaction( #phosporylation of LHCII by Stt7 kinase, triggered by reduced PQ
         rate_name="vSt12",
         function=vSt12,
         stoichiometry={"LHC": -1},

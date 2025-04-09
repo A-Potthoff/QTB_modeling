@@ -792,7 +792,7 @@ def get_matusznyska() -> Model:
         parameters=["Psbstot"],
     )
 
-    #### complex algebraic modules (alm)s
+    #### "complex" algebraic modules (alm)s (not simple moities)
 
     m.add_algebraic_module(
         module_name="ps2crosssection",
@@ -878,7 +878,7 @@ def get_matusznyska() -> Model:
         rate_name="vPS1",   # vPSI is v1, the excitation rate
         function=vPS1,
         stoichiometry={"P700FA": -1, "P700+FA-": 1},
-        modifiers=["P700FA", "ps2cs"],  # * redundant line, does not change the model, tested with and without and simulation results were identical
+        modifiers=["P700FA", "ps2cs"],  # redundant line, does not change the model, tested with and without and simulation results were identical
         dynamic_variables=["P700FA", "ps2cs"],
         parameters=["pfd"]
     )
@@ -983,7 +983,7 @@ def get_matusznyska() -> Model:
         parameters=["kLeak", "pHstroma"],
     )
 
-    m.add_reaction(
+    m.add_reaction( #phosporylation of LHCII by Stt7 kinase, triggered by reduced PQ
         rate_name="vSt12",
         function=vSt12,
         stoichiometry={"LHC": -1},
