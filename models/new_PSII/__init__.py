@@ -2,12 +2,14 @@ from .consumption import add_consumption
 from .matuszynska import get_matusznyska
 from .mehler import add_mehler
 from .thioredoxin import add_thioredoxin
+from .new_PSII import add_PSII
 
 from .rate_laws import normalize_concentration
 from .rate_laws import normalize_2_concentrations
 
 def get_model():
     m = get_matusznyska()
+    m = add_PSII(m)
     m = add_mehler(m)
     m = add_consumption(m)
     m = add_thioredoxin(m)

@@ -180,6 +180,17 @@ def add_mehler(m) -> Model:
         parameters=["O2ext", "kMehler"]
     )
 
+    # formulation of Mehler in Saadat_2021 paper
+    # m.add_reaction(
+    #     rate_name="vMehler",
+    #     function=vMehler,
+    #     stoichiometry={
+    #         "H2O2": 1 * m.get_parameter("convf")
+    #     },  # required to convert as rates of PSI are expressed in mmol/mol Chl
+    #     modifiers=["P700+FA-"],
+    #     parameters=["O2ext", "kMehler"],
+    # )
+
     m.add_reaction(
         rate_name="vGR",
         function=vGR,
