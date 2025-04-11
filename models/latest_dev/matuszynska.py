@@ -148,8 +148,8 @@ def quencher(Psbs, Vx, Psbsp, Zx, y0, y1, y2, y3, kZSat):
     return y0 * Vx * Psbs  +  y1 * Vx * Psbsp  +  y2 * ZAnt * Psbsp  +  y3 * ZAnt * Psbs
 
 # unchanged from matuszynska script
-def fluorescence(Q, B0, B2, ps2cs, k2, kF, kH, kH0):
-    return (ps2cs * kF * B0) / (kF + k2 + kH * Q) + (ps2cs * kF * B2) / (kF + kH * Q)
+def fluorescence(Q, B0, B2, ps2cs, k2, kF, kH_factor, kH0):
+    return (ps2cs * kF * B0) / (kF + k2 + kH_factor * Q) + (ps2cs * kF * B2) / (kF + kH_factor * Q)
 # ! FIXME kH0 ergänzen!
 
 
@@ -234,10 +234,20 @@ def vNDH(Pox, time, ox, O2ext, kNDH, Ton, Toff):
     return oxygen(time, ox, O2ext, kNDH, Ton, Toff)[1] * Pox
 
 
-def vB6f(PC, Pox, Pred, PCred, Keq_B6f, kCytb6f):
-    """calculates reaction rate of cytb6f"""
-    return np.maximum(kCytb6f * (Pred * PC ** 2 - (Pox * PCred ** 2) / Keq_B6f), -kCytb6f)
+def k_b6f(pH , pKreg, b6f_content, max_b6f):
+    pHmod=(1 - (1 / (10 ** (pH - pKreg) + 1)))
+    b6f_deprot=pHmod*b6f_content
+    return b6f_deprot * max_b6f
 
+# def vB6f(PC, Pox, Pred, PCred, Keq_B6f, kCytb6f): #formulation used in Saadat 2021 - replaced by function below
+#     """calculates reaction rate of cytb6f"""
+#     return np.maximum(kCytb6f * (Pred * PC ** 2 - (Pox * PCred ** 2) / Keq_B6f), -kCytb6f)
+
+def vB6f(PC, PCred, PQ, PQred, k_b6f ,Keq_cytb6f):    
+    k_b6f_reverse = k_b6f / Keq_cytb6f
+    f_PQH2=PQred/(PQred+PQ) #want to keep the rates in terms of fraction of PQHs, not total number
+    f_PQ=1-f_PQH2
+    return f_PQH2*PC*k_b6f - f_PQ*PCred*k_b6f_reverse 
 
 def vCyc(Pox, Fdred, kcyc):
     """
@@ -452,8 +462,12 @@ p = {
     "kLeak": 10.0,  # 0.010, # [1/s] leakage rate -- inconsistency with Kathrine
     "bH": 100.0,  # proton buffer: ratio total / free protons  #!!!
     # rate constants
+    ## b6f
+    "b6f_content": 1,
+    "max_b6f": 500,
+    #"kCytb6f": 2.5, #no longer used - was needed in the functions from Saadat 2021 # a rough estimate: transfer PQ->cytf should be ~10ms
+    "pKreg": 6.5,
     "kPQred": 250.0,  # [1/(s*(mmol/molChl))]
-    "kCytb6f": 2.5,  # a rough estimate: transfer PQ->cytf should be ~10ms
     "kPTOX": 0.01,  # ~ 5 electrons / seconds. This gives a bit more (~20)
     "kPCox": 2500.0,  # a rough estimate: half life of PC->P700 should be ~0.2ms    # TODO does this fit with a K_D of 32 µM (Jensen et al. 2007 BBA)
     "kFdred": 2.5e5,  # a rough estimate: half life of PC->P700 should be ~2micro-s
@@ -800,6 +814,14 @@ def get_matusznyska() -> Model:
         parameters=["k2", "kF", "kH_factor", "kH0"],
     )
 
+    m.add_algebraic_module( # move k_b6f computation to the rate function such that it is not a "compound" (by alm).
+        module_name="k_b6f",
+        function=k_b6f,
+        compounds=["pH"],
+        derived_compounds=["k_b6f"],
+        parameters=["pKreg", "b6f_content", "max_b6f"],
+    )
+
     m.add_algebraic_module(
         module_name="pi_alm",
         function=Pimoiety,
@@ -971,13 +993,24 @@ def get_matusznyska() -> Model:
         parameters=["ox", "O2ext", "kNDH", "Ton", "Toff"],
     )
 
+    # Cyt b6f complex
+
+    # m.add_reaction( # original function by Saadat 2021 now replaced by below function
+    #     rate_name="vB6f",
+    #     function=vB6f,
+    #     stoichiometry={"PC": -2, "PQ": 1, "H": 4 / m.get_parameter("bH")},
+    #     modifiers=["PQred", "PCred", "Keq_B6f"],
+    #     dynamic_variables=["PC", "PQ", "PQred", "PCred", "Keq_B6f"],
+    #     parameters=["kCytb6f"],
+    #     reversible=True,
+    # )
+
     m.add_reaction(
         rate_name="vB6f",
         function=vB6f,
         stoichiometry={"PC": -2, "PQ": 1, "H": 4 / m.get_parameter("bH")},
-        modifiers=["PQred", "PCred", "Keq_B6f"],
-        dynamic_variables=["PC", "PQ", "PQred", "PCred", "Keq_B6f"],
-        parameters=["kCytb6f"],
+        modifiers=["PQred", "PCred", "k_b6f", "Keq_B6f"],
+        dynamic_variables=["PC","PCred", "PQ", "PQred", "k_b6f", "Keq_B6f"],
         reversible=True,
     )
 
