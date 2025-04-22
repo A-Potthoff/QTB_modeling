@@ -466,10 +466,10 @@ p = {
     "b6f_content": 1,
     "max_b6f": 500,
     #"kCytb6f": 2.5, #no longer used - was needed in the functions from Saadat 2021 # a rough estimate: transfer PQ->cytf should be ~10ms
-    "pKreg": 6.5,
+    "pKreg": 6.2, # value taken from Joshas Master Thesis (2024) # alternatively: 6.5, 6.0 and so on
     "kPQred": 250.0,  # [1/(s*(mmol/molChl))]
     "kPTOX": 0.01,  # ~ 5 electrons / seconds. This gives a bit more (~20)
-    "kPCox": 2500.0,  # a rough estimate: half life of PC->P700 should be ~0.2ms    # TODO does this fit with a K_D of 32 µM (Jensen et al. 2007 BBA)
+    "kPCox": 2500.0,  # a rough estimate: half life of PC->P700 should be ~0.2ms    # does this fit with a K_D of 32 µM (Jensen et al. 2007 BBA)?
     "kFdred": 2.5e5,  # a rough estimate: half life of PC->P700 should be ~2micro-s
     "kcatFNR": 500.0,  # Carrillo2003 (kcat~500 1/s)
     "kcyc": 1.0,
