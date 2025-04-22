@@ -58,14 +58,12 @@ def keq_PQred(E0_QA, F, E0_PQ, pHstroma, dG_pH, RT):
     K = np.exp(-DG / RT)
     return K
 
-
 def Keq_cyc(E0_Fd, F, E0_PQ, pHstroma, dG_pH, RT):
     DG1 = -E0_Fd * F
     DG2 = -2 * E0_PQ * F
     DG = -2 * DG1 + DG2 + 2 * dG_pH * pHstroma
     K = np.exp(-DG / RT)
     return K
-
 
 def Keq_FAFd(E0_FA, F, E0_Fd, RT):
     DG1 = -E0_FA * F
@@ -74,14 +72,12 @@ def Keq_FAFd(E0_FA, F, E0_Fd, RT):
     K = np.exp(-DG / RT)
     return K
 
-
 def Keq_PCP700(E0_PC, F, E0_P700, RT):
     DG1 = -E0_PC * F
     DG2 = -E0_P700 * F
     DG = -DG1 + DG2
     K = np.exp(-DG / RT)
     return K
-
 
 def Keq_FNR(E0_Fd, F, E0_NADP, pHstroma, dG_pH, RT):
     DG1 = -E0_Fd * F
@@ -90,12 +86,10 @@ def Keq_FNR(E0_Fd, F, E0_NADP, pHstroma, dG_pH, RT):
     K = np.exp(-DG / RT)
     return K
 
-
 def Keq_ATP(pH, DeltaG0_ATP, dG_pH, HPR, pHstroma, Pi_mol, RT):
     DG = DeltaG0_ATP - dG_pH * HPR * (pHstroma - pH)
     Keq = Pi_mol * np.exp(-DG / RT)
     return Keq
-
 
 def Keq_cytb6f(pH, F, E0_PQ, E0_PC, pHstroma, RT, dG_pH):
     DG1 = -2 * F * E0_PQ
@@ -104,7 +98,8 @@ def Keq_cytb6f(pH, F, E0_PQ, E0_PC, pHstroma, RT, dG_pH):
     Keq = np.exp(-DG / RT)
     return Keq
 
-### pH funcitons
+
+### pH functions
 
 def calculate_pHstroma(x):
     return -np.log(x * (3.2e-5)) / np.log(10)
@@ -164,7 +159,6 @@ def vDeepox(Vx, H, nH, kDeepoxV, kphSat):
     #Epoxidation is the chemical reaction which converts the carbon–carbon double bond into oxiranes (epoxides) (CCO-triangles)
     return kDeepoxV * ((H ** nH) / (H ** nH + calculate_pHinv(kphSat) ** nH)) * Vx
 
-
 def vEpox(Zx, kEpoxZ):
     """
     Epoxidation rate of Zeaxanthin (Zx) to Violaxanthin (Vx)
@@ -173,6 +167,7 @@ def vEpox(Zx, kEpoxZ):
     """
     return kEpoxZ * Zx
 
+
 ##### PsbS protonation
 
 def vLhcprotonation(Psbs, H, nH, kProtonationL, kphSatLHC):
@@ -180,7 +175,6 @@ def vLhcprotonation(Psbs, H, nH, kProtonationL, kphSatLHC):
     activity of PsbS protein protonation: protonation modelled by Hill kinetics
     """
     return kProtonationL * ((H ** nH) / (H ** nH + calculate_pHinv(kphSatLHC) ** nH)) * Psbs
-
 
 def vLhcdeprotonation(Psbsp, kDeprotonation):
     """
@@ -206,7 +200,6 @@ def _oxygen(time, ox, O2ext, kNDH, Ton, Toff):
         else:
             return 0, kNDH
 
-
 def oxygen(time, ox, O2ext, kNDH, Ton, Toff):
     """return oxygen and NDH concentration as a function of time
     used to simulate anoxia conditions as in the paper"""
@@ -215,6 +208,7 @@ def oxygen(time, ox, O2ext, kNDH, Ton, Toff):
     else:
         return np.array([_oxygen(t, ox, O2ext, kNDH, Ton, Toff) for t in time]).T
     
+
 ### ETC rate fucntions (includes alternative pathways and cyclic electron flow)
 
 def vPTOX(Pred, time, kPTOX, ox, O2ext, kNDH, Ton, Toff):
@@ -225,14 +219,12 @@ def vPTOX(Pred, time, kPTOX, ox, O2ext, kNDH, Ton, Toff):
     """
     return Pred * kPTOX * oxygen(time, ox, O2ext, kNDH, Ton, Toff)[0]
 
-
 def vNDH(Pox, time, ox, O2ext, kNDH, Ton, Toff):
     """
     calculates reaction rate of PQ reduction under absence of oxygen
     can be mediated by NADH reductase NDH
     """
     return oxygen(time, ox, O2ext, kNDH, Ton, Toff)[1] * Pox
-
 
 def k_b6f(pH , pKreg, b6f_content, max_b6f):
     pHmod=(1 - (1 / (10 ** (pH - pKreg) + 1)))
@@ -257,7 +249,6 @@ def vCyc(Pox, Fdred, kcyc):
     """
     return kcyc * ((Fdred ** 2) * Pox)
 
-
 def vFNR(Fd, Fdred, NADPH, NADP, KM_FNR_F, KM_FNR_N, EFNR, kcatFNR, Keq_FNR, convf):
     """
     Reaction rate mediated by the Ferredoxin—NADP(+) reductase (FNR)
@@ -279,12 +270,12 @@ def vFNR(Fd, Fdred, NADPH, NADP, KM_FNR_F, KM_FNR_N, EFNR, kcatFNR, Keq_FNR, con
         / ((1 + fdred + fdred ** 2) * (1 + nadp) + (1 + fdox + fdox ** 2) * (1 + nadph) - 1)
     )
 
-
 def vLeak(H, kLeak, pHstroma):
     """
     rate of leak of protons through the membrane
     """
     return kLeak * (H - calculate_pHinv(pHstroma))
+
 
 ##### Antenna movement and state transitions
 
@@ -300,7 +291,6 @@ def vSt12(Ant, Pox, kStt7, PQtot, KM_ST, n_ST):
     kKin = kStt7 * (1 / (1 + ((Pox / PQtot) / KM_ST) ** n_ST))
     return kKin * Ant
 
-
 def vSt21(LHCp, kPph1):
     """
     reaction rate of state transitions from PSI to PSII
@@ -308,7 +298,8 @@ def vSt21(LHCp, kPph1):
     """
     return kPph1 * LHCp
 
-##### ATP and NADPH production and consumption
+
+##### ATP production
 
 def vATPsynthase(ATP, ADP, Keq_ATPsynthase, kATPsynth, convf):
     """
@@ -336,7 +327,6 @@ def v1(RUBP, PGA, FBP, SBP, P, NADPH, V1, CO2, Km1, Ki11, Ki12, Ki13, Ki14, Ki15
         * (CO2 + KmCO2)
     )
 
-
 def v6(FBP, F6P, P, V6, Km6, Ki61, Ki62):
     """
     FBPase reaction (Fructose-1,6-bisphosphatase)
@@ -344,14 +334,12 @@ def v6(FBP, F6P, P, V6, Km6, Ki61, Ki62):
     """
     return (V6 * FBP) / (FBP + Km6 * (1 + (F6P / Ki61) + (P / Ki62)))
 
-
 def v9(SBP, Pi, V9, Km9, Ki9):
     """
     SBPase reaction (Sedoheptulose-1,7-bisphosphatase)
     SBP (Sedoheptulose-1,7-bisphosphate) → S7P (Sedoheptulose-7-phosphate)
     """
     return (V9 * SBP) / (SBP + Km9 * (1 + (Pi / Ki9)))
-
 
 def v13(RU5P, ATP, RUBP, PGA, P, ADP, V13, Km131, Ki131, Ki132, Ki133, Ki134, Km132, Ki135):
     """
@@ -363,10 +351,8 @@ def v13(RU5P, ATP, RUBP, PGA, P, ADP, V13, Km131, Ki131, Ki132, Ki133, Ki134, Km
         * (ATP * (1 + (ADP / Ki134)) + Km132 * (1 + (ADP / Ki135)))
     )
 
-
 def triose_export(S, N, Vx, k):
     return (Vx * S) / (N * k)
-
 
 def vStarch(G1P, ATP, ADP, P, PGA, F6P, FBP, Vst, Kmst1, Kist, Kmst2, Kast1, Kast2, Kast3):
     """G1P -> Gn-1 ; Starch production"""
@@ -460,7 +446,7 @@ p = {
     # pH and protons
     "pHstroma": 7.9,
     "kLeak": 10.0,  # 0.010, # [1/s] leakage rate -- inconsistency with Kathrine
-    "bH": 100.0,  # proton buffer: ratio total / free protons  #!!!
+    "bH": 100.0,  # proton buffer: ratio total / free protons
     # rate constants
     ## b6f
     "b6f_content": 1,
