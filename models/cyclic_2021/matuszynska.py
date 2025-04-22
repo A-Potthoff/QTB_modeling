@@ -573,7 +573,7 @@ def protonation(h_stroma):
     return 4e-3 / h_stroma
 
 
-def get_matusznyska() -> Model():
+def get_matusznyska() -> Model:
     m = Model(parameters=p, compounds=variables)
 
     m.add_derived_parameter("fCBB", michaelis_menten, ["pfd", "Vmax_fcbb", "Km_fcbb"])
