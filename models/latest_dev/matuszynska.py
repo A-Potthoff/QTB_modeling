@@ -142,11 +142,12 @@ def quencher(Psbs, Vx, Psbsp, Zx, y0, y1, y2, y3, kZSat):
     ZAnt = Zx / (Zx + kZSat)
     return y0 * Vx * Psbs  +  y1 * Vx * Psbsp  +  y2 * ZAnt * Psbsp  +  y3 * ZAnt * Psbs
 
-# unchanged from matuszynska script
-def fluorescence(Q, B0, B2, ps2cs, k2, kF, kH_factor, kH0):
-    return (ps2cs * kF * B0) / (kF + k2 + kH_factor * Q) + (ps2cs * kF * B2) / (kF + kH_factor * Q)
-# ! FIXME kH0 ergänzen!
+# def fluorescence(Q, B0, B2, ps2cs, k2, kF, kH_Qslope, kH0): #old version without base quenching
+#     return (ps2cs * kF * B0) / (kF + k2 + kH_Qslope * Q) + (ps2cs * kF * B2) / (kF + kH_Qslope * Q)
 
+def fluorescence(Q, B0, B2, ps2cs, k2, kF, kH_Qslope, kH0):
+    kH = kH0 + kH_Qslope * Q
+    return (ps2cs * kF * B0) / (kF + k2 + kH) + (ps2cs * kF * B2) / (kF + kH)
 
 ##### xanthophyll cylcle modulates heat dissipation
 
@@ -413,7 +414,7 @@ p = {
     "Xtot": 1.0,  # relative pool of carotenoids (V+A+Z)
     # Mara "ATPasetot": 1., # relative pool of ATPase
     # parameters associated with photosystem II
-    "kH_factor": 5e9, #using an alm, kH = kH0 + kH_factor * Q is computed
+    "kH_Qslope": 5e9, #using an alm, kH = kH0 + kH_Qslope * Q is computed
     "kH0": 5e8,  # base quenching" after calculation with Giovanni
     "kF": 6.25e8,  # 6.25e7 fluorescence 16ns
     "k1": 5e9,  # excitation of Pheo / charge separation 200ps
@@ -797,7 +798,7 @@ def get_matusznyska() -> Model:
         function=fluorescence,
         compounds=["Q", "B0", "B2", "ps2cs"],
         derived_compounds=["Fluo"],
-        parameters=["k2", "kF", "kH_factor", "kH0"],
+        parameters=["k2", "kF", "kH_Qslope", "kH0"],
     )
 
     m.add_algebraic_module( # move k_b6f computation to the rate function such that it is not a "compound" (by alm).
@@ -857,7 +858,7 @@ def get_matusznyska() -> Model:
         rate_name="vB10Q",
         function = kquencher,
         stoichiometry={"B1": -1, "B0": +1},
-        args=["B1", "Q", "kH_factor", "kH0"]
+        args=["B1", "Q", "kH_Qslope", "kH0"]
     )
 
     m.add_reaction_from_args(
@@ -899,7 +900,7 @@ def get_matusznyska() -> Model:
         rate_name="vB32Q",
         function=kquencher,
         stoichiometry={"B2": 1}, #"B3": -1 (alm)
-        args=["B3", "Q", "kH_factor", "kH0"]
+        args=["B3", "Q", "kH_Qslope", "kH0"]
     )
 
     # PSI reactions

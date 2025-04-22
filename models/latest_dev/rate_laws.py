@@ -40,8 +40,8 @@ def rapid_eq_2_2(s1, s2, p1, p2, k, q):
 def rapid_eq_3_3(s1, s2, s3, p1, p2, p3, k, q):
     return k * (s1 * s2 * s3 - (p1 * p2 * p3 / q))
 
-def kquencher(s, q, kH_factor, kH0):
-    return (kH0 + kH_factor * q) * s
+def kquencher(s, q, kH_Qslope, kH0):
+    return (kH0 + kH_Qslope * q) * s
 
 
 def normalize_concentration(concentration, total):
