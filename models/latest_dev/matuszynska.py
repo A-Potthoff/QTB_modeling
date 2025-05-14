@@ -459,7 +459,7 @@ p = {
     "kPCox": 2500.0,  # a rough estimate: half life of PC->P700 should be ~0.2ms    # does this fit with a K_D of 32 µM (Jensen et al. 2007 BBA)?
     "kFdred": 2.5e5,  # a rough estimate: half life of PC->P700 should be ~2micro-s
     "kcatFNR": 500.0,  # Carrillo2003 (kcat~500 1/s)
-    "kcyc": 1.0,
+    "kcyc": 1,
     "O2ext": 8.0,  # corresponds to 250 microM cor to 20%
     "kNDH": 0.002,  # re-introduce e- into PQ pool. Only positive for anaerobic (reducing) condition
     "kNh": 0.05,

@@ -4,6 +4,10 @@ import numpy as np
 def moiety_1(concentration, total):
     return total - concentration
 
+def moiety_2(c1, c2, total): # first the compounds are passed and then the parameters
+    c3 = total - c1 - c2
+    return c3
+
 def moiety_3(c1, c2, c3, total): # first the compounds are passed and then the parameters
     c4 = total - c1 - c2 - c3
     return c4

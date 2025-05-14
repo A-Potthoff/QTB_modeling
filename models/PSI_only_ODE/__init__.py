@@ -1,6 +1,9 @@
 from .rate_laws import *
 from modelbase.ode import Model
 
+# This is the model of the PSI from Saadat et al. 2021, but this time modeled using ODE instead of QSSA
+# Note that this is not the 4-state model of PSI that is used in the other models, here we still model 3 states!
+
 
 p = {
     "PSItot": 2.5,
@@ -28,7 +31,7 @@ p = {
     "k": 10.0 ** 8.0 * 8,
 }
 
-compounds = ["P700FA", "P700pFAm", "P700FAm", "PC", "Fd", "ps2cs"]
+compounds = ["P700FA", "P700pFAm", "PC", "Fd", "ps2cs"]
 
 def Keq_FAFd(E0_FA, F, E0_Fd, RT):
     DG1 = -E0_FA * F
@@ -97,8 +100,8 @@ def get_model():
 
     m.add_algebraic_module(
         module_name="P700pFA_alm",
-        function=moiety_3,
-        compounds=["P700FAm", "P700FA", "P700pFAm"],
+        function=moiety_2,
+        compounds=["P700FA", "P700pFAm"],
         derived_compounds=["P700pFA"],
         parameters=["PSItot"]
     )
@@ -110,24 +113,6 @@ def get_model():
         modifiers=["P700FA", "ps2cs"],  # redundant line, does not change the model, tested with and without and simulation results were identical
         dynamic_variables=["P700FA", "ps2cs"],
         parameters=["pfd"],
-    )
-
-    m.add_reaction_from_args(
-        rate_name="v2_to_P700FAm",
-        function=mass_action_22_rev,
-        stoichiometry={"P700pFAm": -1, "P700FAm": +1, "PC": +1}, # "PCred": -1 not included because computed by moiety
-        # modifiers=["PCred"], # has to be included here then!
-        # parameters=["kPCox", "Keq_PCP700"],
-        args=["P700pFAm", "PCred", "PC", "P700FAm", "kPCox", "Keq_PCP700"]
-    )
-
-    m.add_reaction_from_args(
-        rate_name="v3_to_P700FA",
-        function=mass_action_22_rev,
-        stoichiometry={"P700FAm": -1, "Fd": -1, "P700FA": +1},
-        # modifiers=["Fdred"],  
-        # parameters=["kFdred", "Keq_FAFd"],
-        args=["P700FAm", "Fd", "P700FA", "Fdred", "kFdred", "Keq_FAFd"]
     )
 
     m.add_reaction_from_args(
@@ -184,15 +169,6 @@ def get_model():
         derived_compounds=["rel_P700FA"],
         parameters=["PSItot"],
         args = ["P700FA", "PSItot"]
-    )
-
-    m.add_algebraic_module(
-        module_name="rel_P700FAm_alm",
-        function=normalize_concentration,
-        compounds=["P700FAm"],
-        derived_compounds=["rel_P700FAm"],
-        parameters=["PSItot"],
-        args = ["P700FAm", "PSItot"]
     )
 
     m.add_algebraic_module(

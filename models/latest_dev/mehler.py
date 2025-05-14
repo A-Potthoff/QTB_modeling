@@ -81,7 +81,7 @@ def add_mehler(m) -> Model:
             "kr4": 4000.0,
             "kf5": 2510.0,  #
             "XT": 0.07,  # according to Valero
-            "kMehler": 1.0,
+            "kMehler": 1,
             # V09 µM -> mM
             "kcat_GR": 595,
             "kcat_DHAR": 142,
