@@ -1,60 +1,10 @@
 from modelbase.ode import Model
 
-from .rate_laws import vPS1
-
-# ! this QSSA is wrong as it assumes wrong stiochiometry of the Mehler reaction. see cyclic_2021_ODE_v1/mehler.py for the correct one
-def ps1analytic_mehler(PC, PCred, Fd, Fdred, LHC, ps2cs, PSItot, kFdred, KeqF, KeqC, kPCox, pfd, k0, O2):
-    """
-    QSSA calculates open state of PSI
-    depends on reduction states of plastocyanin and ferredoxin
-    C = [PC], F = [Fd] (ox. forms)
-    y0 = P700FA
-    y1 = P700+FA-
-    y2 = P700+FA
-    """
-    kLI = (1 - ps2cs) * pfd
-
-    y0 = (
-        KeqC
-        * KeqF
-        * PCred
-        * PSItot
-        * kPCox
-        * (Fd * kFdred + O2 * k0)
-        / (
-            Fd * KeqC * KeqF * PCred * kFdred * kPCox
-            + Fd * KeqF * kFdred * (KeqC * kLI + PC * kPCox)
-            + Fdred * kFdred * (KeqC * kLI + PC * kPCox)
-            + KeqC * KeqF * O2 * PCred * k0 * kPCox
-            + KeqC * KeqF * PCred * kLI * kPCox
-            + KeqF * O2 * k0 * (KeqC * kLI + PC * kPCox)
-        )
-    )
-
-    y1 = (
-        PSItot
-        * (Fdred * kFdred * (KeqC * kLI + PC * kPCox) + KeqC * KeqF * PCred * kLI * kPCox)
-        / (
-            Fd * KeqC * KeqF * PCred * kFdred * kPCox
-            + Fd * KeqF * kFdred * (KeqC * kLI + PC * kPCox)
-            + Fdred * kFdred * (KeqC * kLI + PC * kPCox)
-            + KeqC * KeqF * O2 * PCred * k0 * kPCox
-            + KeqC * KeqF * PCred * kLI * kPCox
-            + KeqF * O2 * k0 * (KeqC * kLI + PC * kPCox)
-        )
-    )
-    y2 = PSItot - y0 - y1
-
-    return y0, y1, y2
-
-
-def vFd_red(Fd, Fdred, P700pFAm, P700pFA, kFdred, Keq_FAFd):
-    """rate of the redcution of Fd by the activity of PSI
-    used to be equall to the rate of PSI but now
-    alternative electron pathway from Fd allows for the production of ROS
-    hence this rate has to be separate
-    """
-    return kFdred * Fd * P700pFAm - kFdred / Keq_FAFd * Fdred * P700pFA
+# Mehler reaction
+# The Mehler reaction is a side reaction of the photosynthetic electron transport chain
+# that reduces oxygen, instead of Fd
+# this leads to the formation of superoxide and hydrogen peroxide. (ROS)
+# This serves as an alternative electron sink to the PSI
 
 
 def vAscorbate(A, H, kf1, kr1, kf2, kr2, kf3, kf4, kr4, kf5, XT):
@@ -62,7 +12,8 @@ def vAscorbate(A, H, kf1, kr1, kf2, kr2, kf3, kf4, kr4, kf5, XT):
     the cycle stretched to a linear chain with
     two steps producing the MDA
     two steps releasing ASC
-    and one step producing hydrogen peroxide"""
+    and one step producing hydrogen peroxide.
+    A = Ascorbate in this case!"""
     nom = A * H * XT
     denom = (
         A * H * (1 / kf3 + 1 / kf5)
@@ -84,14 +35,15 @@ def vMDAreduct(NADPH, MDA, kcatMDAR, KmMDAR_NADPH, KmMDAR_MDA, MDAR0):
     return nom / denom
 
 
-def vMehler(A, O2ext, kMehler):
-    """Draft Mehler reaction inspired from PSI reaction.
+def vMehler(PSI_red_acceptor, O2ext, kMehler):
+    """
+    acceptor_side of the PSI is the side of the Mehler reaction
     This reaction is lumping the reduction of O2 instead of Fd
     resulting in Superoxide, as well as the Formation of H2O2 in one reaction.
     The entire reaction is scaled by the arbitrary parameter kMehler
     """
-    return A * kMehler * O2ext
-
+    #! Assumes linear dependence on both reduced PSI and external O2 concentration. This could be debated as we have a stoichiometry of 2 for the PSI_red_acceptor (giving 2 electrons to O2). Because in vivo, this is sequential and not acchieved through dimerization, we assume that the rate is linear with respect to the reduced PSI acceptor.
+    return kMehler * O2ext * PSI_red_acceptor
 
 def vGR(NADPH, GSSG, kcat_GR, GR0, KmNADPH, KmGSSG):
     nom = kcat_GR * GR0 * NADPH * GSSG
@@ -186,56 +138,6 @@ def add_mehler(m) -> Model:
         parameters=["Glutathion_total"],
     )
 
-    m.update_algebraic_module(
-        module_name="ps1states",
-        function=ps1analytic_mehler,
-        compounds=["PC", "PCred", "Fd", "Fdred", "LHC", "ps2cs"],
-        derived_compounds=["P700FA", "P700+FA-", "P700+FA"],
-        parameters=[
-            "PSItot",
-            "kFdred",
-            "Keq_FAFd",
-            "Keq_PCP700",
-            "kPCox",
-            "pfd",
-            "kMehler",
-            "O2ext",
-        ],
-        args=[
-            "PC",
-            "PCred",
-            "Fd",
-            "Fdred",
-            "LHC",
-            "ps2cs",
-            "PSItot",
-            "kFdred",
-            "Keq_FAFd",
-            "Keq_PCP700",
-            "kPCox",
-            "pfd",
-            "kMehler",
-            "O2ext",
-        ],
-    )
-
-    m.update_reaction( # as this is QSSA, all reactions rates in this system are equal. therefore we can use the below modifiers and substrates for the reaction rate of PC.
-        rate_name="vPS1",
-        function=vPS1,
-        stoichiometry={"PC": 1},
-        modifiers=["P700FA", "ps2cs"],
-        dynamic_variables=["P700FA", "ps2cs"],
-        parameters=["pfd"],
-    )
-
-    m.add_reaction(
-        rate_name="vFdred",
-        function=vFd_red,
-        stoichiometry={"Fd": -1},
-        modifiers=["Fdred", "P700+FA-", "P700+FA"],
-        parameters=["kFdred", "Keq_FAFd"],
-    )
-
     m.add_reaction(
         rate_name="vAscorbate",
         function=vAscorbate,
@@ -252,16 +154,20 @@ def add_mehler(m) -> Model:
         parameters=["kcatMDAR", "KmMDAR_NADPH", "KmMDAR_MDA", "MDAR0"],
     )
 
+    # MEHLER REACTIONS
+
     m.add_reaction(
         rate_name="vMehler",
         function=vMehler,
         stoichiometry={
-            "H2O2": 1 * m.get_parameter("convf"),
-        },  # convf required to convert as rates of PSI are expressed in mmol/mol Chl
-        modifiers=["P700+FA-"],
-        parameters=["O2ext", "kMehler"],
+            "H2O2": +1 * m.get_parameter("convf"), # required to convert as rates of PSI are expressed in mmol/mol Chl
+            # "P700+FA": +2, # is a derived compound!
+            "P700+FA-": -2 # to be consistent with the prior model, this stoichiometry is not used. 
+        },  
+        dynamic_variables=["P700+FA-"],
+        parameters=["O2ext", "kMehler"]
     )
-
+    
     m.add_reaction(
         rate_name="vGR",
         function=vGR,
