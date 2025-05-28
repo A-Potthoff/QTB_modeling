@@ -1,0 +1,23 @@
+[{
+  "share": 1,
+  "v_arrays": [[100, 200, 300]],
+  "set_repeats": "#l0",
+  "_protocol_set_": [{
+  "label": "autogains",
+  "autogain": [[1, 10, 1, 10, 50000], [2, 8, 1, 10, 50000], [3, 6, 1, 7, 50000]],
+  "do_once": 1
+}, {
+  "label": "abs_trace",
+  "pre_illumination": [9, 0, 10000],
+  "pulses": [100, 100, 100],
+  "nonpulsed_lights": [[9, 2], [9, 2], [9, 2]],
+  "pulse_distance": [40000, 40000, 40000],
+  "nonpulsed_lights_brightness": [[0, 0], ["@s0", 0], [0, 0]],
+  "pulsed_lights": [[10, 8, 6], [10, 8, 6], [10, 8, 6]],
+  "detectors": [[1, 1, 1], [1, 1, 1], [1, 1, 1]],
+  "pulsed_lights_brightness": [["a_b1", "a_b2", "a_b3"], ["a_b1", "a_b2", "a_b3"], ["a_b1", "a_b2", "a_b3"]],
+  "pulse_length": [["a_d1", "a_d2", "a_d3"], ["a_d1", "a_d2", "a_d3"], ["a_d1", "a_d2", "a_d3"]],
+  "protocol_averages": 1,
+  "protocol_repeats": 1
+}]
+}]
