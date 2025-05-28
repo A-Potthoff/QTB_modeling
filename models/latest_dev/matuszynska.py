@@ -906,7 +906,7 @@ def get_matusznyska() -> Model:
     # PSI reactions
 
     m.add_reaction(
-        rate_name="vPS1",   # vPSI is v1, the excitation rate
+        rate_name="vPS1",   # vPSI is v1, the excitation rate.
         function=vPS1,
         stoichiometry={"P700FA": -1, "P700+FA-": 1},
         modifiers=["P700FA", "ps2cs"],  # * redundant line, does not change the model, tested with and without and simulation results were identical

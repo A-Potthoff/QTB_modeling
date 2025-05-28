@@ -38,11 +38,11 @@ def vMDAreduct(NADPH, MDA, kcatMDAR, KmMDAR_NADPH, KmMDAR_MDA, MDAR0):
 def vMehler(PSI_red_acceptor, O2ext, kMehler):
     """
     acceptor_side of the PSI is the side of the Mehler reaction
-    Mehler reaction inspired from PSI reaction.
     This reaction is lumping the reduction of O2 instead of Fd
     resulting in Superoxide, as well as the Formation of H2O2 in one reaction.
     The entire reaction is scaled by the arbitrary parameter kMehler
     """
+    #! Assumes linear dependence on both reduced PSI and external O2 concentration. This could be debated as we have a stoichiometry of 2 for the PSI_red_acceptor (giving 2 electrons to O2). Because in vivo, this is sequential and not acchieved through dimerization, we assume that the rate is linear with respect to the reduced PSI acceptor.
     return kMehler * O2ext * PSI_red_acceptor
 
 def vGR(NADPH, GSSG, kcat_GR, GR0, KmNADPH, KmGSSG):
