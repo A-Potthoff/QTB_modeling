@@ -22,11 +22,11 @@ p = {
     "pfd": 100.0,
 
     "k": 10.0 ** 8.0 * 8,
-    "kMehler": 0,
+    "kMehler": 0,           # ! knocking out Mehler reaction
 }
 
 
-compounds = ["PC", "Fd", "ps2cs"]
+compounds = ["PC", "Fd", "ps2cs", "e_tot"]
 
 def Keq_FAFd(E0_FA, F, E0_Fd, RT):
     DG1 = -E0_FA * F
@@ -90,6 +90,37 @@ def ps1analytic_mehler(PC, PCred, Fd, Fdred, ps2cs, PSItot, kFdred, KeqF, KeqC, 
     y2 = PSItot - y0 - y1
 
     return y0, y1, y2
+
+
+def electron_error(y0, y1, y2): # to test if error can be modeled using Delta of y0, y1, y2
+    """
+    Stores previous y0 as a function attribute to compute delta.
+    Will return 0 on first call.
+    y0 = P700FA
+    y1 = P700+FA-
+    y2 = P700+FA
+    """
+
+    if not hasattr(electron_error, "y0_prev"): # if called the first time
+        electron_error.y0_prev = y0
+        electron_error.y1_prev = y1
+        electron_error.y2_prev = y2
+        return 0
+    
+    delta_y0 = y0 - electron_error.y0_prev
+    delta_y1 = y1 - electron_error.y1_prev
+    delta_y2 = y2 - electron_error.y2_prev
+
+    d_electrons_dt = 1*delta_y0 + 1*delta_y1 + 0*delta_y2
+
+    #print(f"delta_y0: {delta_y0}, delta_y1: {delta_y1}, delta_y2: {delta_y2}, d_electrons_dt: {d_electrons_dt}")
+
+    # remember current values for the next call
+    electron_error.y0_prev = y0
+    electron_error.y1_prev = y1
+    electron_error.y2_prev = y2
+    return d_electrons_dt
+
 
 def vFd_red(Fd, Fdred, P700pFAm, P700pFA, kFdred, Keq_FAFd):
     """rate of the redcution of Fd by the activity of PSI
@@ -192,6 +223,23 @@ def get_model():
         stoichiometry={"Fd": -1},
         modifiers=["Fdred", "P700pFAm", "P700pFA"],
         parameters=["kFdred", "Keq_FAFd"],
+    )
+
+    m.add_reaction(
+        rate_name="vPS1_electron_error",
+        function=electron_error,
+        stoichiometry={"e_tot": 0}, # ! 0 cause for some reason I dont understand this crashes the whole system!
+        args=["P700FA", "P700pFAm", "P700pFA"]
+    )
+
+    # pseudo reaction to "update" "ps2cs" variable but keeps it constant
+    m.add_reaction(
+        rate_name="vps2cs",
+        function=proportional,
+        stoichiometry={"ps2cs": 0},
+        modifiers=["ps2cs"],
+        dynamic_variables=["ps2cs"],
+        parameters=["k"],
     )
 
     # useful normalizations of concentrations ! 
