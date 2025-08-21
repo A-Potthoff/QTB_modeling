@@ -1,0 +1,31 @@
+[{
+  "share": 1,
+  "v_arrays": [[100, 200, 400], [4000], [3, 40, 80, 160, 320, 320]],
+  "set_repeats": "#l0",
+  "_protocol_set_": [{
+  "label": "env",
+  "environmental": [["light_intensity"], ["temperature_humidity_pressure"], ["temperature_humidity_pressure2"], ["contactless_temp"], ["compass_and_angle"]],
+  "autogain": [[1, 10, 1, 20, 50000]],
+  "do_once": 1
+}, {
+  "pre_illumination": [2, "@s0", 5000]
+}, {
+  "label": "PIRK",
+  "save_trace_time_scale": 1,
+  "pre_illumination": [2, "@s0", 5000],
+  "pulses": [100, "@n2:0", "@n2:1", "@n2:0", "@n2:2", "@n2:0", "@n2:3", "@n2:0", "@n2:4", "@n2:0", "@n2:5", 100],
+  "pulse_distance": [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000],
+  "nonpulsed_lights": [[2], [2], [2], [2], [2], [2], [2], [2], [2], [2], [2], [2]],
+  "nonpulsed_lights_brightness": [["@s0"], ["@n1:0"], [0], ["@n1:0"], [0], ["@n1:0"], [0], ["@n1:0"], [0], ["@n1:0"], [0], ["@s0"]],
+  "pulsed_lights": [[10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10], [10]],
+  "pulsed_lights_brightness": [["a_b1"], ["a_b1"], ["a_b1"], ["a_b1"], ["a_b1"], ["a_b1"], ["a_b1"], ["a_b1"], ["a_b1"], ["a_b1"], ["a_b1"], ["a_b1"], ["a_b1"]],
+  "pulse_length": [["a_d1"], ["a_d1"], ["a_d1"], ["a_d1"], ["a_d1"], ["a_d1"], ["a_d1"], ["a_d1"], ["a_d1"], ["a_d1"], ["a_d1"], ["a_d1"]],  
+  "detectors": [[1], [1], [1], [1], [1], [1], [1], [1], [1], [1], [1], [1]]
+}]
+}]
+
+distance: 2000
+flashes: 4000 µE for 3 pulses
+measurement: LED10 and DET1
+
+
