@@ -1,15 +1,16 @@
 # code base for my Bachelor Thesis at the Institute of Quantitative and Theoretical Biology (QTB) at the Heinrich Heine Universtity Düsseldorf (HHU).
 
-This code is licensed under the GNU General Public License v3.0 (GPL-3.0).
+This code is licensed under the **MIT License**.
 
-If you use this work in academic research, please consider acknowledging it. A citation, inclusion in acknowledgments, or reference to this repository would be greatly appreciated and helps make contributions visible. For any questions, you are welcome to get in touch.
+If you use this work in academic research, please ensure appropriate attribution in accordance with established academic ethics and guidelines.
 
+For open questions, feel free to contact me.
 
 This repo was initialized by parts of the GitLab repositories:
 * CyclicPhotosyn 2021 (https://gitlab.com/qtb-hhu/models/cyclicphotosyn-2021) and
 * qtb-hhu/Photosynthesis Task Force (https://gitlab.com/qtb-hhu/photosynthesis-task-force/project-template)
 
-model modification and most analysis scripts are my work.
+model modification (changes from model "Saadat21") and most analysis scripts are my work.
 
 install:
 https://github.com/Photosynq/PhotosynQ-Python
